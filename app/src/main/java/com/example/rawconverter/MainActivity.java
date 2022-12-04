@@ -1,18 +1,31 @@
 package com.example.rawconverter;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.util.Log;
+import android.view.View;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
+
+    ActivityResultLauncher<String> openRaw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +37,69 @@ public class MainActivity extends AppCompatActivity {
 
         Python py = Python.getInstance();
         PyObject pyobj = py.getModule("test");
+//
+//        // Test the function
+//        String env = "/storage/emulated/0/Pictures";
+//        Boolean bool = pyobj.callAttr("convert_to_jpg", env, "/test.jpg").toBoolean();
 
-        // Test the function
-        String env = "/storage/emulated/0/Pictures";
-        Boolean bool = pyobj.callAttr("convert_to_jpg", env, "/test.jpg").toBoolean();
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE},
+                PackageManager.PERMISSION_GRANTED);
+
+        openRaw = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                new ActivityResultCallback<Uri>() {
+                    @Override
+                    public void onActivityResult(Uri result) {
+
+                        InputStream iStream = null;
+                        byte[] inputData = null;
+
+                        try {
+                            iStream = getContentResolver().openInputStream(result);
+                            inputData = getBytes(iStream);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        final byte[] finalInputData = inputData;
+
+                        if (inputData != null) {
+                            Thread t1 = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    String res = pyobj.callAttr("open_raw", finalInputData).toString();
+                                    Log.i("PYTHON STATUS", res);
+                                }
+                            });
+
+                            t1.start();
+                        }
+                        else {
+                            Log.i("PYTHON STATUS", "false");
+                        }
+                    }
+                }
+        );
+    }
+
+    public void loadRawFile(View v) {
+        openRaw.launch("*/*");
 
     }
+
+    public byte[] getBytes(InputStream inputStream) throws IOException {
+        // https://stackoverflow.com/questions/10296734/image-uri-to-bytesarray
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
+    }
+
 }
