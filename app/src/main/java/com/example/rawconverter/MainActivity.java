@@ -8,10 +8,14 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
@@ -26,6 +30,7 @@ import java.io.InputStream;
 public class MainActivity extends AppCompatActivity {
 
     ActivityResultLauncher<String> openRaw;
+    ImageView thumbnail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
         Python py = Python.getInstance();
         PyObject pyobj = py.getModule("test");
-//
-//        // Test the function
-//        String env = "/storage/emulated/0/Pictures";
-//        Boolean bool = pyobj.callAttr("convert_to_jpg", env, "/test.jpg").toBoolean();
+
+        thumbnail = (ImageView) findViewById(R.id.thumbnail);
 
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -63,18 +66,10 @@ public class MainActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
 
-                        final byte[] finalInputData = inputData;
-
                         if (inputData != null) {
-                            Thread t1 = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    String res = pyobj.callAttr("open_raw", finalInputData).toString();
-                                    Log.i("PYTHON STATUS", res);
-                                }
-                            });
-
-                            t1.start();
+                            byte[] res = pyobj.callAttr("open_raw", inputData).toJava(byte[].class);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(res, 0, res.length);
+                            thumbnail.setImageBitmap(bitmap);
                         }
                         else {
                             Log.i("PYTHON STATUS", "false");

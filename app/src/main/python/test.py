@@ -3,6 +3,7 @@ import imageio
 import os
 import io
 import time
+from io import BytesIO
 
 # "/data/user/0/com.example.rawconverter/files/img/_DSC2047.NEF"
 def convert_to_jpg(open_path, save_path, file_name):
@@ -38,8 +39,8 @@ def open_raw(content):
 
     try:
         with rawpy.imread(content_file) as raw:
-            rgb = raw.num_colors
+            rgb = raw.extract_thumb()
     except:
         result = False
 
-    return time.time() - t
+    return BytesIO(rgb.data).getvalue()
