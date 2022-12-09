@@ -4,3 +4,5 @@
 
 Put test images in the emulator:
 /data/user/0/com.example.rawconverter/files/img/_DSC2047.NEF
+
+Libraw Version 0.20.2

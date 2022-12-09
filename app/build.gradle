@@ -30,6 +30,16 @@ android {
                 install "numpy"
             }
         }
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+                arguments "-DLIBRAW_PATH=${projectDir}/src/main/cpp/LibRaw/"
+            }
+        }
+    }
+
+    packagingOptions {
+        exclude 'lib/**/libraw_r.so'
     }
 
     buildTypes {
@@ -47,6 +57,17 @@ android {
         main {
             python.srcDir "src/main/python"
         }
+    }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.18.1'
+        }
+    }
+
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDir 'src/main/jniLibs'
     }
 }
 

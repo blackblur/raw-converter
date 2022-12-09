@@ -32,12 +32,16 @@ public class MainActivity extends AppCompatActivity {
     ActivityResultLauncher<String> openRaw;
     ImageView thumbnail;
 
+    static {
+        System.loadLibrary("rawconverter");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(!Python.isStarted())
+        if (!Python.isStarted())
             Python.start(new AndroidPlatform(this));
 
         Python py = Python.getInstance();
@@ -47,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE},
+                        Manifest.permission.READ_EXTERNAL_STORAGE},
                 PackageManager.PERMISSION_GRANTED);
 
         openRaw = registerForActivityResult(
@@ -70,13 +74,14 @@ public class MainActivity extends AppCompatActivity {
                             byte[] res = pyobj.callAttr("open_raw", inputData).toJava(byte[].class);
                             Bitmap bitmap = BitmapFactory.decodeByteArray(res, 0, res.length);
                             thumbnail.setImageBitmap(bitmap);
-                        }
-                        else {
+                        } else {
                             Log.i("PYTHON STATUS", "false");
                         }
                     }
                 }
         );
+
+        Log.i("C++ String", stringFromJNI());
     }
 
     public void loadRawFile(View v) {
@@ -96,5 +101,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return byteBuffer.toByteArray();
     }
+
+    public native String stringFromJNI();
 
 }
