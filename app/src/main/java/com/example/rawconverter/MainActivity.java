@@ -17,35 +17,25 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import com.example.rawconverter.LibRaw;
 
 public class MainActivity extends AppCompatActivity {
 
     ActivityResultLauncher<String> openRaw;
     ImageView thumbnail;
 
-    static {
-        System.loadLibrary("rawconverter");
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (!Python.isStarted())
-            Python.start(new AndroidPlatform(this));
-
-        Python py = Python.getInstance();
-        PyObject pyobj = py.getModule("test");
+        // Libraw Class test
+        LibRaw libraw = LibRaw.newInstance();
+        Log.i("C++ String", libraw.stringFromJNI());
 
         thumbnail = (ImageView) findViewById(R.id.thumbnail);
 
@@ -57,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         openRaw = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 new ActivityResultCallback<Uri>() {
+
                     @Override
                     public void onActivityResult(Uri result) {
 
@@ -71,17 +62,19 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (inputData != null) {
-                            byte[] res = pyobj.callAttr("open_raw", inputData).toJava(byte[].class);
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(res, 0, res.length);
-                            thumbnail.setImageBitmap(bitmap);
-                        } else {
-                            Log.i("PYTHON STATUS", "false");
+                            int status = libraw.openBuffer(inputData, inputData.length);
+                            Bitmap bitmap = libraw.decodeAsBitmap(true);
+//                            Bitmap bitmap = BitmapFactory.decodeByteArray(res, 0, res.length);
+                            if (bitmap != null) {
+                                thumbnail.setImageBitmap(bitmap);
+                            }
                         }
+
+                        libraw.close();
                     }
                 }
         );
 
-        Log.i("C++ String", stringFromJNI());
     }
 
     public void loadRawFile(View v) {
@@ -101,7 +94,4 @@ public class MainActivity extends AppCompatActivity {
         }
         return byteBuffer.toByteArray();
     }
-
-    public native String stringFromJNI();
-
 }
