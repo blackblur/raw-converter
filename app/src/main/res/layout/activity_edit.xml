@@ -121,6 +121,28 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="5dp"
                     android:layout_marginTop="5dp" />
+
+                <CheckBox
+                    android:id="@+id/checkBox_camera_white_balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:text="Camera white balance"
+                    android:textColor="#808080" />
+
+                <CheckBox
+                    android:id="@+id/checkBox_auto_white_balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:text="Auto white balance"
+                    android:textColor="#808080" />
             </LinearLayout>
 
             <Switch
