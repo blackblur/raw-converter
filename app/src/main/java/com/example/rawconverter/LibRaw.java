@@ -48,12 +48,14 @@ public class LibRaw implements AutoCloseable {
             setUserQual(2);
             setHalfSize(halfSize);
 
+            getInfo();
+
             int[] pixels = getPixels8();
             if (pixels != null) {
                 b=Bitmap.createBitmap(pixels, getBitmapWidth(), getBitmapHeight(), Bitmap.Config.ARGB_8888);
             }
 
-            recycle();
+//            recycle();
             return b;
         }
 
@@ -64,6 +66,7 @@ public class LibRaw implements AutoCloseable {
      * Include libRaw methods from cpp
      */
     public native String stringFromJNI();  // Test Function
+    public native void getInfo();
 
     /**
      * Methods Loading Data from a File
@@ -96,6 +99,7 @@ public class LibRaw implements AutoCloseable {
     public native void setCropBox(int[] cropBox);
     public native void setAber(double[] aber);
     public native void setGamm(double[] gamm);
+    public native void setGammPower(double gamm);
     public native void setUserMul(float[] userMul);
     public native void setShotSelect(int shotSelect);
     public native void setBright(float bright);

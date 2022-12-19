@@ -14,7 +14,7 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        app:srcCompat="@color/black" />
 
 
 
@@ -64,66 +64,77 @@
                 android:id="@+id/white_options"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginBottom="20dp"
+                android:layout_weight="1"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginRight="5dp"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
                     android:text="Temperature" />
 
                 <SeekBar
                     android:id="@+id/temp_seekBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginRight="5dp"
-                    android:layout_marginTop="5dp" />
+                    android:layout_marginBottom="5dp" />
 
                 <TextView
                     android:id="@+id/textView4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginRight="5dp"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
                     android:text="Tint" />
 
                 <SeekBar
                     android:id="@+id/tint_seekBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginRight="5dp"
-                    android:layout_marginTop="5dp" />
+                    android:layout_marginBottom="5dp" />
 
                 <TextView
                     android:id="@+id/textView5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginRight="5dp"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
                     android:text="Dynamic" />
 
                 <SeekBar
                     android:id="@+id/dynamic_seekBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginRight="5dp"
-                    android:layout_marginTop="5dp" />
+                    android:layout_marginBottom="5dp" />
+
+                <CheckBox
+                    android:id="@+id/checkBox_no_white_balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:text="No white balance"
+                    android:textColor="#808080" />
 
                 <CheckBox
                     android:id="@+id/checkBox_camera_white_balance"
@@ -167,59 +178,101 @@
                     android:id="@+id/textView6"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginRight="5dp"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
                     android:text="Parameter 1" />
 
                 <SeekBar
                     android:id="@+id/seekBar4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginRight="5dp"
-                    android:layout_marginTop="5dp" />
+                    android:layout_marginBottom="5dp" />
 
                 <TextView
                     android:id="@+id/textView7"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginRight="5dp"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
                     android:text="Parameter 2" />
 
                 <SeekBar
                     android:id="@+id/seekBar5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginRight="5dp"
-                    android:layout_marginTop="5dp" />
+                    android:layout_marginBottom="5dp" />
 
                 <TextView
                     android:id="@+id/textView8"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginRight="5dp"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
                     android:text="Parameter 3" />
 
                 <SeekBar
                     android:id="@+id/seekBar6"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
                     android:layout_marginLeft="20dp"
+                    android:layout_marginTop="5dp"
                     android:layout_marginRight="5dp"
-                    android:layout_marginTop="5dp" />
+                    android:layout_marginBottom="5dp" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:text="Brightness" />
+
+            <SeekBar
+                android:id="@+id/brightness_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:text="Gamma" />
+
+            <SeekBar
+                android:id="@+id/gamma_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1" />
 
         </LinearLayout>
     </ScrollView>
@@ -240,7 +293,7 @@
         android:id="@+id/process_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="300dp"
+        android:layout_marginStart="296dp"
         android:layout_marginTop="44dp"
         android:text="Process"
         app:layout_constraintStart_toStartOf="parent"

@@ -52,6 +52,23 @@ libraw_processed_image_t *decode(int *error) {
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
+// TODO TEST
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_rawconverter_LibRaw_getInfo(JNIEnv *env, jobject jLibRaw) {
+    int use_camera_wb = libRawData->params.use_camera_wb;
+    int auto_wb = libRawData->params.use_auto_wb;
+    __android_log_print(ANDROID_LOG_INFO, "libraw", "Camera WB: %d, Auto WB: %d", use_camera_wb, auto_wb);
+    __android_log_print(ANDROID_LOG_INFO, "libraw", "Mul %f %f %f %f",
+                        libRawData->params.user_mul[0],
+                        libRawData->params.user_mul[1],
+                        libRawData->params.user_mul[2],
+                        libRawData->params.user_mul[3]);
+    __android_log_print(ANDROID_LOG_INFO, "libraw", "Brightness %f", libRawData->params.bright);
+    __android_log_print(ANDROID_LOG_INFO, "libraw", "Gamma %f %f",
+                        libRawData->params.gamm[0],
+                        libRawData->params.gamm[1]);
+}
+
 
 /**
  * Methods Loading Data from a File
@@ -229,6 +246,11 @@ Java_com_example_rawconverter_LibRaw_setGamm(JNIEnv *env, jobject obj, jdoubleAr
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_example_rawconverter_LibRaw_setGammPower(JNIEnv *env, jobject obj, jdouble gamm) {
+    libRawData->params.gamm[0] = gamm;
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setUserMul(JNIEnv *env, jobject obj, jfloatArray userMul) {
     jsize len = env->GetArrayLength(userMul);
     if (len != 4) {
@@ -236,7 +258,7 @@ Java_com_example_rawconverter_LibRaw_setUserMul(JNIEnv *env, jobject obj, jfloat
     }
     jfloat *body = env->GetFloatArrayElements(userMul, nullptr);
     for (int i = 0; i < 4; i++) {
-        libRawData->params.aber[i] = body[i];
+        libRawData->params.user_mul[i] = body[i];
     }
     env->ReleaseFloatArrayElements(userMul, body, 0);
 }
