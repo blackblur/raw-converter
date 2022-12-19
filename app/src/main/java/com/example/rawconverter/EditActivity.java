@@ -51,6 +51,7 @@ public class EditActivity extends AppCompatActivity {
             try {
                 iStream = getContentResolver().openInputStream(imagePath);
                 inputData = getBytes(iStream);
+                iStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -62,7 +63,6 @@ public class EditActivity extends AppCompatActivity {
                     imageView.setImageBitmap(bitmap);
                 }
             }
-
             libraw.close();
         }
 
@@ -85,11 +85,19 @@ public class EditActivity extends AppCompatActivity {
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
         int bufferSize = 1024;
         byte[] buffer = new byte[bufferSize];
+        byte[] bytesResult = null;
 
-        int len = 0;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
+        try {
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+            bytesResult = byteBuffer.toByteArray();
+        } finally {
+            try {
+                byteBuffer.close();
+            } catch (IOException ignored){ /* do nothing */ }
         }
-        return byteBuffer.toByteArray();
+        return bytesResult;
     }
 }
