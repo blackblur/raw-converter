@@ -139,7 +139,7 @@ public class EditActivity extends AppCompatActivity {
                 }
             }
         });
-        autoWbCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        noWbCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
