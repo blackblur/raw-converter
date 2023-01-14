@@ -40,17 +40,25 @@ public class LibRaw implements AutoCloseable {
         }
     }
 
-    public Bitmap decodeAsBitmap(boolean halfSize) {
+    public Bitmap decodeAsBitmap(boolean halfSize, boolean onlyMem) {
         Bitmap b = null;
 
         if (isInstance) {
             setOutputBps(8);
             setUserQual(2);
             setHalfSize(halfSize);
+//            setOutputColor(2);
 
             getInfo();
 
-            int[] pixels = getPixels8();
+            int[] pixels;
+
+            if (onlyMem) {
+                pixels = getPixels8OnlyMem();
+            }
+            else {
+                pixels = getPixels8();
+            }
             if (pixels != null) {
                 b=Bitmap.createBitmap(pixels, getBitmapWidth(), getBitmapHeight(), Bitmap.Config.ARGB_8888);
             }
@@ -80,6 +88,7 @@ public class LibRaw implements AutoCloseable {
      * To Java image
      */
     public native int[] getPixels8();
+    public native int[] getPixels8OnlyMem();
 
     /**
      * Auxiliary Functions

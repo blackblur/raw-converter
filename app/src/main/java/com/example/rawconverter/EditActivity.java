@@ -84,7 +84,7 @@ public class EditActivity extends AppCompatActivity {
 
                     if (inputData != null) {
                         int status = libraw.openBuffer(inputData, inputData.length);
-                        final Bitmap bitmap = libraw.decodeAsBitmap(true);
+                        final Bitmap bitmap = libraw.decodeAsBitmap(true, false);
                         if (bitmap != null) {
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -215,7 +215,7 @@ public class EditActivity extends AppCompatActivity {
         new Thread() {
             @Override
             public void run() {
-                final Bitmap bitmap = libraw.decodeAsBitmap(true);
+                final Bitmap bitmap = libraw.decodeAsBitmap(true, true);
                 if (bitmap != null) {
                     runOnUiThread(new Runnable() {
                         @Override

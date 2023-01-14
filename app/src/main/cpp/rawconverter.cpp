@@ -52,12 +52,24 @@ libraw_processed_image_t *decode(int *error) {
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
+libraw_processed_image_t *decodeOnlyMem(int *error) {
+//    int dcraw = libraw_dcraw_process(libRawData);
+
+    for (int i = 0; i < 0x10000; i++) {
+        libRawData->color.curve[i] = i;
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "Curve: %d", libRawData->color.curve[i]);
+    }
+
+    return libraw_dcraw_make_mem_image(libRawData, error);
+}
+
 // TODO TEST
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_getInfo(JNIEnv *env, jobject jLibRaw) {
     int use_camera_wb = libRawData->params.use_camera_wb;
     int auto_wb = libRawData->params.use_auto_wb;
-    __android_log_print(ANDROID_LOG_INFO, "libraw", "Camera WB: %d, Auto WB: %d", use_camera_wb, auto_wb);
+    __android_log_print(ANDROID_LOG_INFO, "libraw", "Camera WB: %d, Auto WB: %d", use_camera_wb,
+                        auto_wb);
     __android_log_print(ANDROID_LOG_INFO, "libraw", "Mul %f %f %f %f",
                         libRawData->params.user_mul[0],
                         libRawData->params.user_mul[1],
@@ -67,6 +79,12 @@ Java_com_example_rawconverter_LibRaw_getInfo(JNIEnv *env, jobject jLibRaw) {
     __android_log_print(ANDROID_LOG_INFO, "libraw", "Gamma %f %f",
                         libRawData->params.gamm[0],
                         libRawData->params.gamm[1]);
+
+    __android_log_print(ANDROID_LOG_INFO, "libraw", "Output Color %d",
+                        libRawData->params.output_color);
+
+//    LibRaw *ip = (LibRaw *)libRawData->parent_class;
+
 }
 
 
@@ -149,6 +167,39 @@ Java_com_example_rawconverter_LibRaw_getPixels8(JNIEnv *env, jobject obj) {
         }
         __android_log_print(ANDROID_LOG_INFO, "libraw", "getPixels8 image colors %d",
                             image->colors);
+
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "asdfasdf %d %d",
+                            image->width, image->height);
+        int x, y;
+        for (y = 0; y < image->height; y++) {
+            for (x = 0; x < image->width; x++) {
+                int pos = (x + y * image->width) * 3;
+                image8[x + y * image->width] =
+                        0xff000000 | (image->data[pos] << 16) | (image->data[pos + 1] << 8) |
+                        (image->data[pos + 2]);
+            }
+        }
+        jintArray jintArray = env->NewIntArray(image->width * image->height);
+        env->SetIntArrayRegion(jintArray, 0, image->width * image->height, image8);
+        free(image8);
+        return jintArray;
+    }
+    __android_log_print(ANDROID_LOG_INFO, "libraw", "error getPixels8 %d", error);
+    return nullptr;
+}
+
+extern "C" JNIEXPORT jintArray JNICALL
+Java_com_example_rawconverter_LibRaw_getPixels8OnlyMem(JNIEnv *env, jobject obj) {
+    int error;
+    image = decodeOnlyMem(&error);
+    if (image != nullptr) {
+        int *image8 = (int *) malloc(sizeof(int) * image->width * image->height);
+        if (image8 == nullptr) {
+            __android_log_print(ANDROID_LOG_INFO, "libraw", "getPixels8 oom");
+            return nullptr;
+        }
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "getPixels8 image colors %d",
+                            image->colors);
         int x, y;
         for (y = 0; y < image->height; y++) {
             for (x = 0; x < image->width; x++) {
@@ -197,7 +248,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setGreyBox(JNIEnv *env, jobject obj, jintArray greyBox) {
     jsize len = env->GetArrayLength(greyBox);
     if (len != 4) {
-        throw std::invalid_argument( "Grey Box Array should have a length of 4" );
+        throw std::invalid_argument("Grey Box Array should have a length of 4");
     }
     jint *body = env->GetIntArrayElements(greyBox, nullptr);
     for (int i = 0; i < 4; i++) {
@@ -210,7 +261,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setCropBox(JNIEnv *env, jobject obj, jintArray cropBox) {
     jsize len = env->GetArrayLength(cropBox);
     if (len != 4) {
-        throw std::invalid_argument( "Crop Box Array should have a length of 4" );
+        throw std::invalid_argument("Crop Box Array should have a length of 4");
     }
     jint *body = env->GetIntArrayElements(cropBox, nullptr);
     for (int i = 0; i < 4; i++) {
@@ -223,7 +274,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setAber(JNIEnv *env, jobject obj, jdoubleArray aber) {
     jsize len = env->GetArrayLength(aber);
     if (len != 4) {
-        throw std::invalid_argument( "Crop Box Array should have a length of 4" );
+        throw std::invalid_argument("Crop Box Array should have a length of 4");
     }
     jdouble *body = env->GetDoubleArrayElements(aber, nullptr);
     for (int i = 0; i < 4; i++) {
@@ -236,7 +287,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setGamm(JNIEnv *env, jobject obj, jdoubleArray gamm) {
     jsize len = env->GetArrayLength(gamm);
     if (len != 6) {
-        throw std::invalid_argument( "Gamma Array should have a length of 6" );
+        throw std::invalid_argument("Gamma Array should have a length of 6");
     }
     jdouble *body = env->GetDoubleArrayElements(gamm, nullptr);
     for (int i = 0; i < 6; i++) {
@@ -254,7 +305,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setUserMul(JNIEnv *env, jobject obj, jfloatArray userMul) {
     jsize len = env->GetArrayLength(userMul);
     if (len != 4) {
-        throw std::invalid_argument( "userMul Array should have a length of 4" );
+        throw std::invalid_argument("userMul Array should have a length of 4");
     }
     jfloat *body = env->GetFloatArrayElements(userMul, nullptr);
     for (int i = 0; i < 4; i++) {
@@ -284,7 +335,8 @@ Java_com_example_rawconverter_LibRaw_setHalfSize(JNIEnv *env, jobject obj, jbool
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setFourColorRGB(JNIEnv *env, jobject obj, jboolean fourColorRGB) {
+Java_com_example_rawconverter_LibRaw_setFourColorRGB(JNIEnv *env, jobject obj,
+                                                     jboolean fourColorRGB) {
     libRawData->params.four_color_rgb = fourColorRGB;
 }
 
@@ -342,7 +394,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setUserCBlack(JNIEnv *env, jobject obj, jintArray cBlack) {
     jsize len = env->GetArrayLength(cBlack);
     if (len != 4) {
-        throw std::invalid_argument( "cBlack Array should have a length of 4" );
+        throw std::invalid_argument("cBlack Array should have a length of 4");
     }
     jint *body = env->GetIntArrayElements(cBlack, nullptr);
     for (int i = 0; i < 4; i++) {
@@ -367,22 +419,26 @@ Java_com_example_rawconverter_LibRaw_setNoAutoBright(JNIEnv *env, jobject obj, j
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setAutoBrightThr(JNIEnv *env, jobject obj, jfloat autoBrightThr) {
+Java_com_example_rawconverter_LibRaw_setAutoBrightThr(JNIEnv *env, jobject obj,
+                                                      jfloat autoBrightThr) {
     libRawData->params.auto_bright_thr = autoBrightThr;
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setAdjustMaximumThr(JNIEnv *env, jobject obj, jfloat adjustMaximumThr) {
+Java_com_example_rawconverter_LibRaw_setAdjustMaximumThr(JNIEnv *env, jobject obj,
+                                                         jfloat adjustMaximumThr) {
     libRawData->params.adjust_maximum_thr = adjustMaximumThr;
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setGreenMatching(JNIEnv *env, jobject obj, jint greenMatching) {
+Java_com_example_rawconverter_LibRaw_setGreenMatching(JNIEnv *env, jobject obj,
+                                                      jint greenMatching) {
     libRawData->params.green_matching = greenMatching;
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setDcbIterations(JNIEnv *env, jobject obj, jint dcbIterations) {
+Java_com_example_rawconverter_LibRaw_setDcbIterations(JNIEnv *env, jobject obj,
+                                                      jint dcbIterations) {
     libRawData->params.dcb_iterations = dcbIterations;
 }
 
@@ -428,16 +484,18 @@ Java_com_example_rawconverter_LibRaw_setNoAutoScale(JNIEnv *env, jobject obj, ji
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setNoInterpolation(JNIEnv *env, jobject obj, jint noInterpol) {
-    libRawData->params.no_interpolation= noInterpol;
+    libRawData->params.no_interpolation = noInterpol;
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setRawProcessingOptions(JNIEnv *env, jobject obj, jint options) {
+Java_com_example_rawconverter_LibRaw_setRawProcessingOptions(JNIEnv *env, jobject obj,
+                                                             jint options) {
     libRawData->params.raw_processing_options = options;
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setMaxRawMemoryMb(JNIEnv *env, jobject obj, jint maxRawMemoryMb) {
+Java_com_example_rawconverter_LibRaw_setMaxRawMemoryMb(JNIEnv *env, jobject obj,
+                                                       jint maxRawMemoryMb) {
     libRawData->params.max_raw_memory_mb = maxRawMemoryMb;
 }
 

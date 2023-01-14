@@ -13,6 +13,7 @@
  */
 
 #include "../../internal/libraw_cxx_defs.h"
+#include <math.h>
 
 int LibRaw::dcraw_process(void)
 {
@@ -231,6 +232,30 @@ int LibRaw::dcraw_process(void)
 
     if (callbacks.pre_converttorgb_cb)
       (callbacks.pre_converttorgb_cb)(this);
+
+    // TODO Custom Tone Mapping
+    // 0.2126*R + 0.7152*G + 0.0722*B
+    // 0.299R + 0.587G + 0.114B
+//    int row, col, c;
+//    ushort *img;
+//    ushort curve[0x10000];
+//    int diff;
+//    int grey;
+//    for (int j = 0; j < 0x10000; j++) {
+////      curve[j] = 65535 * sin(0.001 * j) + (65535/2);
+//        curve[j] = 1/1.1 * (j - 32767) + 32767;
+//    }
+//    for (img = imgdata.image[0], row = 0; row < S.height; row++)
+//    {
+//      for (col = 0; col < S.width; col++, img += 4)
+//      {
+//          grey = (int) 0.2126 * img[0] + 0.7152 * img[1] + 0.0722 * img[2];
+//        diff = curve[grey] - grey;
+//        img[0] = CLIP((int)curve[img[0]] + diff/3);
+//        img[1] = CLIP((int)curve[img[1]] + diff/3);
+//        img[2] = CLIP((int)curve[img[2]] + diff/3);
+//      }
+//    }
 
     convert_to_rgb();
     SET_PROC_FLAG(LIBRAW_PROGRESS_CONVERT_RGB);
