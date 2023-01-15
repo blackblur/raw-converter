@@ -35,6 +35,7 @@ Java_com_example_rawconverter_LibRaw_stringFromJNI(
  */
 libraw_data_t *libRawData = nullptr;
 libraw_processed_image_t *image = nullptr;
+ushort initCurve[0x10000];
 
 void cleanup() {
     if (libRawData != nullptr) {
@@ -49,17 +50,12 @@ void cleanup() {
 
 libraw_processed_image_t *decode(int *error) {
     int dcraw = libraw_dcraw_process(libRawData);
+    dcraw = libraw_dcraw_process_2(libRawData);
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
 libraw_processed_image_t *decodeOnlyMem(int *error) {
-//    int dcraw = libraw_dcraw_process(libRawData);
-
-    for (int i = 0; i < 0x10000; i++) {
-        libRawData->color.curve[i] = i;
-        __android_log_print(ANDROID_LOG_INFO, "libraw", "Curve: %d", libRawData->color.curve[i]);
-    }
-
+    int dcraw = libraw_dcraw_process_2(libRawData);
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
@@ -121,6 +117,12 @@ Java_com_example_rawconverter_LibRaw_openBuffer(JNIEnv *env, jobject obj, jbyteA
         if (result == 0) {
             result = libraw_unpack(libRawData);
         }
+
+        // Copy initial color curve
+        for (int i = 0; i < 0x10000; i++) {
+            initCurve[i] = libRawData->color.curve[i];
+        }
+
         env->ReleasePrimitiveArrayCritical(buffer, ptr, 0);
         return result;
     }

@@ -394,9 +394,18 @@ int LibRaw::raw2image_ex(int do_subtract_black)
       imgdata.image = (ushort(*)[4])realloc(imgdata.image,
                                             alloc_sz * sizeof(*imgdata.image));
       memset(imgdata.image, 0, alloc_sz * sizeof(*imgdata.image));
+
+      // TODO MODIFICATION
+      imgdata.temp_image = (ushort(*)[4])realloc(imgdata.temp_image,
+                                                 alloc_sz * sizeof(*imgdata.temp_image));
+      memset(imgdata.temp_image, 0, alloc_sz * sizeof(*imgdata.temp_image));
     }
     else
       imgdata.image = (ushort(*)[4])calloc(alloc_sz, sizeof(*imgdata.image));
+
+      // TODO MODIFICATION
+      imgdata.temp_image = (ushort(*)[4])calloc(alloc_sz, sizeof(*imgdata.temp_image));
+
     merror(imgdata.image, "raw2image_ex()");
 
     libraw_decoder_info_t decoder_info;

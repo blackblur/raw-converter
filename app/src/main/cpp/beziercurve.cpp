@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <tuple>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

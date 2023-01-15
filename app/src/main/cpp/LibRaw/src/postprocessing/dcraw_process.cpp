@@ -230,32 +230,74 @@ int LibRaw::dcraw_process(void)
     }
 #endif
 
+//    if (callbacks.pre_converttorgb_cb)
+//      (callbacks.pre_converttorgb_cb)(this);
+//
+//    convert_to_rgb();
+//    SET_PROC_FLAG(LIBRAW_PROGRESS_CONVERT_RGB);
+//
+//    if (callbacks.post_converttorgb_cb)
+//      (callbacks.post_converttorgb_cb)(this);
+//
+//    if (O.use_fuji_rotate)
+//    {
+//      stretch();
+//      SET_PROC_FLAG(LIBRAW_PROGRESS_STRETCH);
+//    }
+//    O.four_color_rgb = save_4color; // also, restore
+
+    // TODO COPY Image to temp image
+    int row, col;
+    ushort *img;
+    ushort *tempimg;
+    for (img = imgdata.image[0], tempimg = imgdata.temp_image[0], row = 0; row < S.height; row++)
+    {
+      for (col = 0; col < S.width; col++, img += 4, tempimg += 4)
+      {
+        tempimg[0] = img[0];
+        tempimg[1] = img[1];
+        tempimg[2] = img[2];
+      }
+    }
+
+    return 0;
+  }
+  catch (LibRaw_exceptions err)
+  {
+    EXCEPTION_HANDLER(err);
+  }
+}
+
+int LibRaw::dcraw_process_2(void) {
+  try
+  {
+
+    int save_4color = O.four_color_rgb;
+
     if (callbacks.pre_converttorgb_cb)
       (callbacks.pre_converttorgb_cb)(this);
 
     // TODO Custom Tone Mapping
     // 0.2126*R + 0.7152*G + 0.0722*B
     // 0.299R + 0.587G + 0.114B
-//    int row, col, c;
-//    ushort *img;
-//    ushort curve[0x10000];
-//    int diff;
-//    int grey;
-//    for (int j = 0; j < 0x10000; j++) {
-////      curve[j] = 65535 * sin(0.001 * j) + (65535/2);
-//        curve[j] = 1/1.1 * (j - 32767) + 32767;
-//    }
-//    for (img = imgdata.image[0], row = 0; row < S.height; row++)
-//    {
-//      for (col = 0; col < S.width; col++, img += 4)
-//      {
-//          grey = (int) 0.2126 * img[0] + 0.7152 * img[1] + 0.0722 * img[2];
-//        diff = curve[grey] - grey;
-//        img[0] = CLIP((int)curve[img[0]] + diff/3);
-//        img[1] = CLIP((int)curve[img[1]] + diff/3);
-//        img[2] = CLIP((int)curve[img[2]] + diff/3);
-//      }
-//    }
+    int row, col;
+    ushort *img;
+    ushort *tempimg;
+    ushort curve[0x10000];
+    for (int j = 0; j < 0x10000; j++) {
+        curve[j] = 1/1.1 * (j - 32767) + 32767;
+    }
+    for (img = imgdata.image[0], tempimg = imgdata.temp_image[0], row = 0; row < S.height; row++)
+    {
+      for (col = 0; col < S.width; col++, img += 4, tempimg += 4)
+      {
+//        img[0] = CLIP((int)curve[img[0]]);
+//        img[1] = CLIP((int)curve[img[1]]);
+        img[0] = tempimg[0];
+        img[1] = tempimg[1];
+        img[2] = CLIP((int)curve[tempimg[2]]);
+      }
+    }
 
     convert_to_rgb();
     SET_PROC_FLAG(LIBRAW_PROGRESS_CONVERT_RGB);

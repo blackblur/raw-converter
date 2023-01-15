@@ -937,6 +937,7 @@ typedef unsigned long long UINT64;
   typedef struct
   {
     ushort (*image)[4];
+    ushort (*temp_image)[4];
     libraw_image_sizes_t sizes;
     libraw_iparams_t idata;
     libraw_lensinfo_t lens;
