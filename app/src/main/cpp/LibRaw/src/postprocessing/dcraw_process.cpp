@@ -268,7 +268,7 @@ int LibRaw::dcraw_process(void)
   }
 }
 
-int LibRaw::dcraw_process_2(void) {
+int LibRaw::dcraw_process_2(ushort *toneCurve, int rgb) {
   try
   {
 
@@ -277,25 +277,35 @@ int LibRaw::dcraw_process_2(void) {
     if (callbacks.pre_converttorgb_cb)
       (callbacks.pre_converttorgb_cb)(this);
 
-    // TODO Custom Tone Mapping
-    // 0.2126*R + 0.7152*G + 0.0722*B
-    // 0.299R + 0.587G + 0.114B
-    int row, col;
-    ushort *img;
-    ushort *tempimg;
-    ushort curve[0x10000];
-    for (int j = 0; j < 0x10000; j++) {
-        curve[j] = 1/1.1 * (j - 32767) + 32767;
-    }
-    for (img = imgdata.image[0], tempimg = imgdata.temp_image[0], row = 0; row < S.height; row++)
-    {
-      for (col = 0; col < S.width; col++, img += 4, tempimg += 4)
-      {
-//        img[0] = CLIP((int)curve[img[0]]);
-//        img[1] = CLIP((int)curve[img[1]]);
-        img[0] = tempimg[0];
-        img[1] = tempimg[1];
-        img[2] = CLIP((int)curve[tempimg[2]]);
+    if (rgb != 10) {
+      // TODO Custom Tone Mapping
+      // 0.2126*R + 0.7152*G + 0.0722*B
+      // 0.299R + 0.587G + 0.114B
+      int row, col;
+      ushort *img;
+      ushort *tempimg;
+
+      for (img = imgdata.image[0], tempimg = imgdata.temp_image[0], row = 0;
+           row < S.height; row++) {
+        for (col = 0; col < S.width; col++, img += 4, tempimg += 4) {
+
+          switch(rgb) {
+            case 0:
+              img[0] = CLIP((int) toneCurve[tempimg[0]]);
+              img[1] = tempimg[1];
+              img[2] = tempimg[2];
+              break;
+            case 1:
+                img[0] = tempimg[0];
+                img[1] = CLIP((int) toneCurve[tempimg[1]]);
+                img[2] = tempimg[2];
+              break;
+            case 2:
+                img[0] = tempimg[0];
+                img[1] = tempimg[1];
+                img[2] = CLIP((int) toneCurve[tempimg[2]]);
+          }
+        }
       }
     }
 

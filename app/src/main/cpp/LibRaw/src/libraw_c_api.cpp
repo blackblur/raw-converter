@@ -226,12 +226,12 @@ extern "C"
     LibRaw *ip = (LibRaw *)lr->parent_class;
     return ip->dcraw_process();
   }
-  int libraw_dcraw_process_2(libraw_data_t *lr)
+  int libraw_dcraw_process_2(libraw_data_t *lr, ushort *toneCurve, int rgb)
   {
     if (!lr)
       return EINVAL;
     LibRaw *ip = (LibRaw *)lr->parent_class;
-    return ip->dcraw_process_2();
+    return ip->dcraw_process_2(toneCurve, rgb);
   }
   libraw_processed_image_t *libraw_dcraw_make_mem_image(libraw_data_t *lr,
                                                         int *errc)

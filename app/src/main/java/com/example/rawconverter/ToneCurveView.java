@@ -20,7 +20,6 @@ import java.util.List;
 
 public class ToneCurveView extends View {
 
-
     Paint paint_grid = new Paint();
     Paint paint_circle = new Paint();
     Paint paint_curve = new Paint();
@@ -161,21 +160,6 @@ public class ToneCurveView extends View {
             case MotionEvent.ACTION_UP:
                 current_circle = -1;
                 current_distance = 99;
-
-                Log.i("MAX X", String.valueOf(maxBoundary_x));
-                Log.i("MAX Y", String.valueOf(maxBoundary_y));
-
-                for (int i=0; i<firstCP.length; i++) {
-                    Log.i("FIRST CP", String.format("%f/%f", firstCP[i].x, firstCP[i].y));
-                }
-
-                for (int i=0; i<secondCP.length; i++) {
-                    Log.i("Second CP", String.format("%f/%f", secondCP[i].x, secondCP[i].y));
-                }
-
-                for (int i=0; i<knots.size(); i++) {
-                    Log.i("Knots", String.format("%f/%f", knots.get(i).x, knots.get(i).y));
-                }
 
                 break;
             default:

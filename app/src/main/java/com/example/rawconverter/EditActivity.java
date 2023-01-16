@@ -2,11 +2,13 @@ package com.example.rawconverter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -35,7 +37,9 @@ public class EditActivity extends AppCompatActivity {
     CheckBox noWbCheck;
     SeekBar brightnessSeek;
     SeekBar gammaSeek;
+    ToneCurveView toneCurveView;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +60,7 @@ public class EditActivity extends AppCompatActivity {
         noWbCheck = findViewById(R.id.checkBox_no_white_balance);
         brightnessSeek = findViewById(R.id.brightness_seekbar);
         gammaSeek = findViewById(R.id.gamma_seekbar);
+        toneCurveView = findViewById(R.id.tone_curve);
 
 
         // Hide options
@@ -186,6 +191,19 @@ public class EditActivity extends AppCompatActivity {
                 libraw.setGammPower(1 / gamma);
             }
         });
+        
+        toneCurveView.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y,
+                            toneCurveView.firstCP, toneCurveView.secondCP, toneCurveView.knots);
+                    processRaw();
+                }
+                return false;
+            }
+        });
 
     }
 
@@ -215,7 +233,7 @@ public class EditActivity extends AppCompatActivity {
         new Thread() {
             @Override
             public void run() {
-                final Bitmap bitmap = libraw.decodeAsBitmap(true, true);
+                final Bitmap bitmap = libraw.decodeAsBitmap(true, false);
                 if (bitmap != null) {
                     runOnUiThread(new Runnable() {
                         @Override

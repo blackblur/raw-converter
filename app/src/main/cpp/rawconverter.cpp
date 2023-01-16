@@ -20,6 +20,8 @@
 #include <jni.h>
 #include <string>
 #include <android/log.h>
+#include "beziercurve.h"
+
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_rawconverter_LibRaw_stringFromJNI(
@@ -36,6 +38,7 @@ Java_com_example_rawconverter_LibRaw_stringFromJNI(
 libraw_data_t *libRawData = nullptr;
 libraw_processed_image_t *image = nullptr;
 ushort initCurve[0x10000];
+ushort toneCurve[0x10000];
 
 void cleanup() {
     if (libRawData != nullptr) {
@@ -50,12 +53,12 @@ void cleanup() {
 
 libraw_processed_image_t *decode(int *error) {
     int dcraw = libraw_dcraw_process(libRawData);
-    dcraw = libraw_dcraw_process_2(libRawData);
+    dcraw = libraw_dcraw_process_2(libRawData, toneCurve, 10);
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
-libraw_processed_image_t *decodeOnlyMem(int *error) {
-    int dcraw = libraw_dcraw_process_2(libRawData);
+libraw_processed_image_t *decodeOnlyMem(int *error, int rgb) {
+    int dcraw = libraw_dcraw_process_2(libRawData, toneCurve, rgb);
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
@@ -79,8 +82,36 @@ Java_com_example_rawconverter_LibRaw_getInfo(JNIEnv *env, jobject jLibRaw) {
     __android_log_print(ANDROID_LOG_INFO, "libraw", "Output Color %d",
                         libRawData->params.output_color);
 
-//    LibRaw *ip = (LibRaw *)libRawData->parent_class;
+}
 
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw,
+                                                    jintArray pointsX, jintArray pointsY) {
+    jsize len = env->GetArrayLength(pointsX);
+    jint *bodyX = env->GetIntArrayElements(pointsX, nullptr);
+    jint *bodyY = env->GetIntArrayElements(pointsY, nullptr);
+
+    vector<double> xX;
+    vector<double> yY;
+    vector<double> yCurve;
+
+    int index = 0;
+    for (int i = 0; i < len-3; i += 4) {
+        xX = {(double)bodyX[i], (double)bodyX[i+1], (double)bodyX[i+2], (double)bodyX[i+3]};
+        yY = {(double)bodyY[i], (double)bodyY[i+1], (double)bodyY[i+2], (double)bodyY[i+3]};
+
+        yCurve = computeBesierCurve2D(xX, yY, bodyX[i], bodyX[i+3]);
+
+        for (double curve : yCurve) {
+            toneCurve[index] = (int) curve;
+            index++;
+        }
+
+    }
+    toneCurve[index] = bodyY[len-1];
+
+    env->ReleaseIntArrayElements(pointsX, bodyX, 0);
+    env->ReleaseIntArrayElements(pointsY, bodyY, 0);
 }
 
 
@@ -121,6 +152,7 @@ Java_com_example_rawconverter_LibRaw_openBuffer(JNIEnv *env, jobject obj, jbyteA
         // Copy initial color curve
         for (int i = 0; i < 0x10000; i++) {
             initCurve[i] = libRawData->color.curve[i];
+            toneCurve[i] = i;
         }
 
         env->ReleasePrimitiveArrayCritical(buffer, ptr, 0);
@@ -191,9 +223,9 @@ Java_com_example_rawconverter_LibRaw_getPixels8(JNIEnv *env, jobject obj) {
 }
 
 extern "C" JNIEXPORT jintArray JNICALL
-Java_com_example_rawconverter_LibRaw_getPixels8OnlyMem(JNIEnv *env, jobject obj) {
+Java_com_example_rawconverter_LibRaw_getPixels8OnlyMem(JNIEnv *env, jobject obj, jint rgb) {
     int error;
-    image = decodeOnlyMem(&error);
+    image = decodeOnlyMem(&error, rgb);
     if (image != nullptr) {
         int *image8 = (int *) malloc(sizeof(int) * image->width * image->height);
         if (image8 == nullptr) {
