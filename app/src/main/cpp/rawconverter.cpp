@@ -91,24 +91,33 @@ Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw
     jint *bodyX = env->GetIntArrayElements(pointsX, nullptr);
     jint *bodyY = env->GetIntArrayElements(pointsY, nullptr);
 
-    vector<double> xX;
-    vector<double> yY;
-    vector<double> yCurve;
+    if (len > 2) {
+        vector<double> xX;
+        vector<double> yY;
+        vector<double> yCurve;
 
-    int index = 0;
-    for (int i = 0; i < len-3; i += 4) {
-        xX = {(double)bodyX[i], (double)bodyX[i+1], (double)bodyX[i+2], (double)bodyX[i+3]};
-        yY = {(double)bodyY[i], (double)bodyY[i+1], (double)bodyY[i+2], (double)bodyY[i+3]};
+        int index = 0;
+        for (int i = 0; i < len - 3; i += 4) {
+            xX = {(double) bodyX[i], (double) bodyX[i + 1], (double) bodyX[i + 2],
+                  (double) bodyX[i + 3]};
+            yY = {(double) bodyY[i], (double) bodyY[i + 1], (double) bodyY[i + 2],
+                  (double) bodyY[i + 3]};
 
-        yCurve = computeBesierCurve2D(xX, yY, bodyX[i], bodyX[i+3]);
+            yCurve = computeBesierCurve2D(xX, yY, bodyX[i], bodyX[i + 3]);
 
-        for (double curve : yCurve) {
-            toneCurve[index] = (int) curve;
-            index++;
+            for (double curve: yCurve) {
+                toneCurve[index] = (int) curve;
+                index++;
+            }
+
         }
-
+        toneCurve[index] = bodyY[len - 1];
     }
-    toneCurve[index] = bodyY[len-1];
+    else {
+        for (int i = 0; i < 0x10000; i++) {
+            toneCurve[i] = (int) ((double)i * (double)(bodyY[1] - bodyY[0]) / (bodyX[1] - bodyX[0]) + (double)bodyY[0]);
+        }
+    }
 
     env->ReleaseIntArrayElements(pointsX, bodyX, 0);
     env->ReleaseIntArrayElements(pointsY, bodyY, 0);

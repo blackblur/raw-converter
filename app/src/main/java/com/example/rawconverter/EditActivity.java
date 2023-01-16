@@ -107,7 +107,7 @@ public class EditActivity extends AppCompatActivity {
         processButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                processRaw();
+                processRaw(false);
             }
         });
 
@@ -199,7 +199,7 @@ public class EditActivity extends AppCompatActivity {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y,
                             toneCurveView.firstCP, toneCurveView.secondCP, toneCurveView.knots);
-                    processRaw();
+                    processRaw(true);
                 }
                 return false;
             }
@@ -228,12 +228,12 @@ public class EditActivity extends AppCompatActivity {
         return bytesResult;
     }
 
-    public void processRaw() {
+    public void processRaw(boolean onlyMem) {
         progressCircle.setVisibility(View.VISIBLE);
         new Thread() {
             @Override
             public void run() {
-                final Bitmap bitmap = libraw.decodeAsBitmap(true, false);
+                final Bitmap bitmap = libraw.decodeAsBitmap(true, onlyMem);
                 if (bitmap != null) {
                     runOnUiThread(new Runnable() {
                         @Override

@@ -76,22 +76,38 @@ public class LibRaw implements AutoCloseable {
 
     public void applyToneCurve(float maxBoundaryX, float maxBoundaryY, Point[] firstCP, Point[] secondCP, List<Point> knots) {
         Log.i("LIBRAW", "APPLY TONECURVE");
-        int[] x = new int[firstCP.length + secondCP.length + knots.size()];
-        int[] y = new int[firstCP.length + secondCP.length + knots.size()];
-        float factorX = 65536 / maxBoundaryX;
-        float factorY = 65536 / maxBoundaryY;
-        for (int i = 0, j = 0; i < x.length - 3; i += 3, j++) {
-            x[i] = Math.max(Math.min((int) (knots.get(j).x * factorX), 65535), 0);
-            y[i] = Math.max(Math.min((int) (knots.get(j).y * factorY), 65535), 0);
-            x[i + 1] = Math.max(Math.min((int) (firstCP[j].x * factorX), 65535), 0);
-            y[i + 1] = Math.max(Math.min((int) (firstCP[j].y * factorY), 65535), 0);
-            x[i + 2] = Math.max(Math.min((int) (secondCP[j].x * factorX), 65535), 0);
-            y[i + 2] = Math.max(Math.min((int) (secondCP[j].y * factorY), 65535), 0);
-        }
-        x[x.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).x * factorX), 65535), 0);
-        y[y.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).y * factorY), 65535), 0);
+        if (knots.size() > 2) {
+            int[] x = new int[firstCP.length + secondCP.length + knots.size()];
+            int[] y = new int[firstCP.length + secondCP.length + knots.size()];
+            float factorX = 65536 / maxBoundaryX;
+            float factorY = 65536 / maxBoundaryY;
+            for (int i = 0, j = 0; i < x.length - 3; i += 3, j++) {
+                x[i] = Math.max(Math.min((int) (knots.get(j).x * factorX), 65535), 0);
+                y[i] = Math.max(Math.min((int) (knots.get(j).y * factorY), 65535), 0);
+                x[i + 1] = Math.max(Math.min((int) (firstCP[j].x * factorX), 65535), 0);
+                y[i + 1] = Math.max(Math.min((int) (firstCP[j].y * factorY), 65535), 0);
+                x[i + 2] = Math.max(Math.min((int) (secondCP[j].x * factorX), 65535), 0);
+                y[i + 2] = Math.max(Math.min((int) (secondCP[j].y * factorY), 65535), 0);
+            }
+            x[x.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).x * factorX), 65535), 0);
+            y[y.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).y * factorY), 65535), 0);
 
-        applyToneCurve(x, y);
+            applyToneCurve(x, y);
+        }
+        else {
+            int[] x = new int[2];
+            int[] y = new int[2];
+
+            float factorX = 65536 / maxBoundaryX;
+            float factorY = 65536 / maxBoundaryY;
+
+            x[0] = Math.max(Math.min((int) (knots.get(0).x * factorX), 65535), 0);
+            y[0] = Math.max(Math.min((int) (knots.get(0).y * factorX), 65535), 0);
+            x[1] = Math.max(Math.min((int) (knots.get(1).x * factorX), 65535), 0);
+            y[1] = Math.max(Math.min((int) (knots.get(1).y * factorX), 65535), 0);
+
+            applyToneCurve(x, y);
+        }
     }
 
     /**

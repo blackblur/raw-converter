@@ -73,7 +73,7 @@ public class ToneCurveView extends View {
         canvas.drawLine(0, 0, 0, this.getMeasuredHeight(), paint_grid);  // Left line
         canvas.drawLine(this.getMeasuredWidth(), 0, this.getMeasuredWidth(), this.getMeasuredHeight(), paint_grid);  // Right Line
         canvas.drawLine(0, this.getMeasuredHeight(), this.getMeasuredWidth(), this.getMeasuredHeight(), paint_grid);  // Bottom Line
-        canvas.drawLine(0, this.getMeasuredHeight(), this.getMeasuredWidth(), 0, paint_grid);  // Diagonal Line
+        canvas.drawLine(0, 0, this.getMeasuredWidth(), this.getMeasuredHeight(), paint_grid);  // Diagonal Line
     }
 
     private void drawPoints(Canvas canvas) {
@@ -109,6 +109,7 @@ public class ToneCurveView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        canvas.scale(1f, -1f, maxBoundary_x / 2f, maxBoundary_y / 2f);
         drawGrid(canvas);
         drawCurve(canvas);
         drawPoints(canvas);
@@ -117,7 +118,7 @@ public class ToneCurveView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = Math.max(Math.min(event.getX(), maxBoundary_x), 0);
-        float y = Math.max(Math.min(event.getY(), maxBoundary_y), 0);
+        float y = Math.max(Math.min(maxBoundary_y - event.getY(), maxBoundary_y), 0);
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -177,8 +178,8 @@ public class ToneCurveView extends View {
         maxBoundary_y = this.getMeasuredHeight();
 
         // Add first point and second point
-        knots.add(new Point(0.f, (float) this.getMeasuredHeight()));
-        knots.add(new Point((float) this.getMeasuredWidth(), 0.f));
+        knots.add(new Point(0.f, 0.f));
+        knots.add(new Point((float) this.getMeasuredWidth(), (float) this.getMeasuredHeight()));
 
     }
 
