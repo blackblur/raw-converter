@@ -198,7 +198,7 @@ public class EditActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y,
-                            toneCurveView.firstCP, toneCurveView.secondCP, toneCurveView.knots, 2);
+                            toneCurveView.firstCPArr[2], toneCurveView.secondCPArr[2], toneCurveView.knotsList.get(2), 2);
                     processRaw(true);
                 }
                 return false;
