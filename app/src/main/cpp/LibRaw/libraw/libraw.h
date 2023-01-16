@@ -124,7 +124,7 @@ extern "C"
                                           const char *filename);
   DllDef int libraw_dcraw_thumb_writer(libraw_data_t *lr, const char *fname);
   DllDef int libraw_dcraw_process(libraw_data_t *lr);
-  DllDef int libraw_dcraw_process_2(libraw_data_t *lr, ushort *toneCurve, int rgb);
+  DllDef int libraw_dcraw_process_2(libraw_data_t *lr, ushort* toneCurves[]);
   DllDef libraw_processed_image_t *
   libraw_dcraw_make_mem_image(libraw_data_t *lr, int *errc);
   DllDef libraw_processed_image_t *
@@ -232,7 +232,7 @@ public:
   int dcraw_ppm_tiff_writer(const char *filename);
   int dcraw_thumb_writer(const char *fname);
   int dcraw_process(void);
-  int dcraw_process_2(ushort *toneCurve, int rgb);
+  int dcraw_process_2(ushort *toneCurves[]);
   /* information calls */
   int is_fuji_rotated()
   {

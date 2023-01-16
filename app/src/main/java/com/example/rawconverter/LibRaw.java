@@ -59,7 +59,7 @@ public class LibRaw implements AutoCloseable {
             int[] pixels;
 
             if (onlyMem) {
-                pixels = getPixels8OnlyMem(2);
+                pixels = getPixels8OnlyMem();
             } else {
                 pixels = getPixels8();
             }
@@ -74,7 +74,7 @@ public class LibRaw implements AutoCloseable {
         return null;
     }
 
-    public void applyToneCurve(float maxBoundaryX, float maxBoundaryY, Point[] firstCP, Point[] secondCP, List<Point> knots) {
+    public void applyToneCurve(float maxBoundaryX, float maxBoundaryY, Point[] firstCP, Point[] secondCP, List<Point> knots, int rgb) {
         Log.i("LIBRAW", "APPLY TONECURVE");
         if (knots.size() > 2) {
             int[] x = new int[firstCP.length + secondCP.length + knots.size()];
@@ -92,7 +92,7 @@ public class LibRaw implements AutoCloseable {
             x[x.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).x * factorX), 65535), 0);
             y[y.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).y * factorY), 65535), 0);
 
-            applyToneCurve(x, y);
+            applyToneCurve(x, y, rgb);
         }
         else {
             int[] x = new int[2];
@@ -106,7 +106,7 @@ public class LibRaw implements AutoCloseable {
             x[1] = Math.max(Math.min((int) (knots.get(1).x * factorX), 65535), 0);
             y[1] = Math.max(Math.min((int) (knots.get(1).y * factorX), 65535), 0);
 
-            applyToneCurve(x, y);
+            applyToneCurve(x, y, rgb);
         }
     }
 
@@ -116,7 +116,7 @@ public class LibRaw implements AutoCloseable {
     public native String stringFromJNI();  // Test Function
 
     public native void getInfo();
-    public native void applyToneCurve(int[] pointsX, int[] pointsY);
+    public native void applyToneCurve(int[] pointsX, int[] pointsY, int rgb);
 
     /**
      * Methods Loading Data from a File
@@ -134,7 +134,7 @@ public class LibRaw implements AutoCloseable {
      */
     public native int[] getPixels8();
 
-    public native int[] getPixels8OnlyMem(int rgb);
+    public native int[] getPixels8OnlyMem();
 
     /**
      * Auxiliary Functions

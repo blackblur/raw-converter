@@ -268,7 +268,7 @@ int LibRaw::dcraw_process(void)
   }
 }
 
-int LibRaw::dcraw_process_2(ushort *toneCurve, int rgb) {
+int LibRaw::dcraw_process_2(ushort *toneCurves[]) {
   try
   {
 
@@ -277,7 +277,6 @@ int LibRaw::dcraw_process_2(ushort *toneCurve, int rgb) {
     if (callbacks.pre_converttorgb_cb)
       (callbacks.pre_converttorgb_cb)(this);
 
-    if (rgb != 10) {
       // TODO Custom Tone Mapping
       // 0.2126*R + 0.7152*G + 0.0722*B
       // 0.299R + 0.587G + 0.114B
@@ -289,25 +288,12 @@ int LibRaw::dcraw_process_2(ushort *toneCurve, int rgb) {
            row < S.height; row++) {
         for (col = 0; col < S.width; col++, img += 4, tempimg += 4) {
 
-          switch(rgb) {
-            case 0:
-              img[0] = CLIP((int) toneCurve[tempimg[0]]);
-              img[1] = tempimg[1];
-              img[2] = tempimg[2];
-              break;
-            case 1:
-                img[0] = tempimg[0];
-                img[1] = CLIP((int) toneCurve[tempimg[1]]);
-                img[2] = tempimg[2];
-              break;
-            case 2:
-                img[0] = tempimg[0];
-                img[1] = tempimg[1];
-                img[2] = CLIP((int) toneCurve[tempimg[2]]);
-          }
+          img[0] = CLIP((int) toneCurves[0][tempimg[0]]);
+          img[1] = CLIP((int) toneCurves[1][tempimg[1]]);
+          img[2] = CLIP((int) toneCurves[2][tempimg[2]]);
+
         }
       }
-    }
 
     convert_to_rgb();
     SET_PROC_FLAG(LIBRAW_PROGRESS_CONVERT_RGB);
