@@ -47,6 +47,7 @@ public class EditActivity extends AppCompatActivity {
     SeekBar brightnessSeek, gammaSeek;
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
+    Button resetButton;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -73,7 +74,9 @@ public class EditActivity extends AppCompatActivity {
         brightnessSeek = findViewById(R.id.brightness_seekbar);
         gammaSeek = findViewById(R.id.gamma_seekbar);
         toneCurveView = findViewById(R.id.tone_curve);
+        toneCurveView.setVisibility(View.INVISIBLE);
         bottomNavigation = findViewById(R.id.bottom_navigation);
+        resetButton = findViewById(R.id.reset_btn);
 
         // Hide options
         whiteBalancingGroup.setVisibility(View.VISIBLE);
@@ -125,6 +128,18 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toneCurveView.resetColorCurves(toneSelection);
+                libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y,
+                        toneCurveView.firstCPArr[toneSelection], toneCurveView.secondCPArr[toneSelection],
+                        toneCurveView.knotsList.get(toneSelection), toneSelection);
+                processRaw(true);
+
+            }
+        });
+
         // Wire radio groups
         whiteBalancingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -155,6 +170,7 @@ public class EditActivity extends AppCompatActivity {
                 } else if (findViewById(i) == findViewById(R.id.radio_tone_blue)) {
                     toneSelection = 2;
                 }
+                toneCurveView.changeColor(toneSelection);
             }
         });
         curveRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -174,16 +190,19 @@ public class EditActivity extends AppCompatActivity {
                     whiteBalancingGroup.setVisibility(View.VISIBLE);
                     toneMappingGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.GONE);
+                    toneCurveView.setVisibility(View.INVISIBLE);
                     return true;
                 } else if (item.getItemId() == R.id.menu_tone_mapping) {
                     whiteBalancingGroup.setVisibility(View.GONE);
                     toneMappingGroup.setVisibility(View.VISIBLE);
                     extraGroup.setVisibility(View.GONE);
+                    toneCurveView.setVisibility(View.VISIBLE);
                     return true;
                 } else if (item.getItemId() == R.id.menu_extra) {
                     whiteBalancingGroup.setVisibility(View.GONE);
                     toneMappingGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.VISIBLE);
+                    toneCurveView.setVisibility(View.INVISIBLE);
                     return true;
                 }
                 return false;
@@ -237,8 +256,8 @@ public class EditActivity extends AppCompatActivity {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     // TODO: Check indices
                     libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y,
-                            toneCurveView.firstCPArr[2], toneCurveView.secondCPArr[2],
-                            toneCurveView.knotsList.get(2), toneSelection);
+                            toneCurveView.firstCPArr[toneSelection], toneCurveView.secondCPArr[toneSelection],
+                            toneCurveView.knotsList.get(toneSelection), toneSelection);
                     processRaw(true);
                 }
                 return false;

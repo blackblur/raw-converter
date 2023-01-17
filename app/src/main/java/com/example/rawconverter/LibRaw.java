@@ -102,9 +102,9 @@ public class LibRaw implements AutoCloseable {
             float factorY = 65536 / maxBoundaryY;
 
             x[0] = Math.max(Math.min((int) (knots.get(0).x * factorX), 65535), 0);
-            y[0] = Math.max(Math.min((int) (knots.get(0).y * factorX), 65535), 0);
+            y[0] = Math.max(Math.min((int) (knots.get(0).y * factorY), 65535), 0);
             x[1] = Math.max(Math.min((int) (knots.get(1).x * factorX), 65535), 0);
-            y[1] = Math.max(Math.min((int) (knots.get(1).y * factorX), 65535), 0);
+            y[1] = Math.max(Math.min((int) (knots.get(1).y * factorY), 65535), 0);
 
             applyToneCurve(x, y, rgb);
         }
