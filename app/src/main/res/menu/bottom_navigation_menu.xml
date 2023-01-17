@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_white_balancing"
+        android:enabled="true"
+        android:icon="@drawable/ic_white_balancing"
+        android:title="White Balancing"/>
+    <item
+        android:id="@+id/menu_tone_mapping"
+        android:enabled="true"
+        android:icon="@drawable/ic_tone_mapping"
+        android:title="Tone Mapping"/>
+    <item
+        android:id="@+id/menu_extra"
+        android:enabled="true"
+        android:icon="@drawable/ic_extra"
+        android:title="Extra"/>
+</menu>
