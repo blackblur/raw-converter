@@ -43,6 +43,11 @@ ushort toneCurveG[0x10000];
 ushort toneCurveB[0x10000];
 ushort* toneCurves[3] = {toneCurveR, toneCurveG, toneCurveB};
 
+short toneValR[0x10000];
+short toneValG[0x10000];
+short toneValB[0x10000];
+short* toneVals[3] = {toneValR, toneValG, toneValB};
+
 void cleanup() {
     if (libRawData != nullptr) {
         libraw_recycle(libRawData);
@@ -56,12 +61,12 @@ void cleanup() {
 
 libraw_processed_image_t *decode(int *error) {
     int dcraw = libraw_dcraw_process(libRawData);
-    dcraw = libraw_dcraw_process_2(libRawData, toneCurves);
+    dcraw = libraw_dcraw_process_2(libRawData, toneCurves, toneVals);
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
 libraw_processed_image_t *decodeOnlyMem(int *error) {
-    int dcraw = libraw_dcraw_process_2(libRawData, toneCurves);
+    int dcraw = libraw_dcraw_process_2(libRawData, toneCurves, toneVals);
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
@@ -100,7 +105,7 @@ Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw
         vector<double> yCurve;
 
         int index = 0;
-        for (int i = 0; i < len - 3; i += 4) {
+        for (int i = 0; i < len - 1; i += 3) {
             xX = {(double) bodyX[i], (double) bodyX[i + 1], (double) bodyX[i + 2],
                   (double) bodyX[i + 3]};
             yY = {(double) bodyY[i], (double) bodyY[i + 1], (double) bodyY[i + 2],
@@ -126,6 +131,21 @@ Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw
     env->ReleaseIntArrayElements(pointsY, bodyY, 0);
 }
 
+extern "C" JNIEXPORT jintArray JNICALL
+Java_com_example_rawconverter_LibRaw_getToneCurve(JNIEnv *env, jobject jLibRaw) {
+    jintArray jintArray = env->NewIntArray(0x10000);
+    jint fill[0x10000];
+    for (int i = 0; i < 0x10000; i++) {
+        fill[i] = toneCurves[0][i];
+    }
+    env->SetIntArrayRegion(jintArray, 0, 0x10000, fill);
+    return jintArray;
+}
+
+extern "C" JNIEXPORT int JNICALL
+Java_com_example_rawconverter_LibRaw_getMaximumColor(JNIEnv *env, jobject jLibRaw) {
+    return libRawData->color.maximum;
+}
 
 /**
  * Methods Loading Data from a File

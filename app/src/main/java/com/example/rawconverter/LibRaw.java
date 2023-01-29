@@ -7,12 +7,19 @@ import com.example.rawconverter.utils.Point;
 
 import java.util.List;
 
+import java.io.File;
+import java.io.FileWriter;
+
+
 public class LibRaw implements AutoCloseable {
     static {
         System.loadLibrary("rawconverter");
     }
 
     boolean isInstance = false;
+    int[] pointsY;
+    int[] pknots_x;
+    int[] pknots_y;
 
     public LibRaw(int flags) {
         init(flags);
@@ -76,37 +83,75 @@ public class LibRaw implements AutoCloseable {
 
     public void applyToneCurve(float maxBoundaryX, float maxBoundaryY, Point[] firstCP, Point[] secondCP, List<Point> knots, int rgb) {
         Log.i("LIBRAW", "APPLY TONECURVE");
+//        int maximumColor = getMaximumColor();
+        int maximumColor = 65535;
+
         if (knots.size() > 2) {
             int[] x = new int[firstCP.length + secondCP.length + knots.size()];
             int[] y = new int[firstCP.length + secondCP.length + knots.size()];
-            float factorX = 65536 / maxBoundaryX;
+            float factorX = (maximumColor + 1) / maxBoundaryX;
             float factorY = 65536 / maxBoundaryY;
             for (int i = 0, j = 0; i < x.length - 3; i += 3, j++) {
-                x[i] = Math.max(Math.min((int) (knots.get(j).x * factorX), 65535), 0);
-                y[i] = Math.max(Math.min((int) (knots.get(j).y * factorY), 65535), 0);
-                x[i + 1] = Math.max(Math.min((int) (firstCP[j].x * factorX), 65535), 0);
-                y[i + 1] = Math.max(Math.min((int) (firstCP[j].y * factorY), 65535), 0);
-                x[i + 2] = Math.max(Math.min((int) (secondCP[j].x * factorX), 65535), 0);
-                y[i + 2] = Math.max(Math.min((int) (secondCP[j].y * factorY), 65535), 0);
+                x[i] = Math.max(Math.min((int) (knots.get(j).x * factorX), maximumColor), 0);
+                y[i] = Math.max(Math.min((int) (knots.get(j).y * factorY), maximumColor), 0);
+                x[i + 1] = Math.max(Math.min((int) (firstCP[j].x * factorX), maximumColor), 0);
+                y[i + 1] = Math.max(Math.min((int) (firstCP[j].y * factorY), maximumColor), 0);
+                x[i + 2] = Math.max(Math.min((int) (secondCP[j].x * factorX), maximumColor), 0);
+                y[i + 2] = Math.max(Math.min((int) (secondCP[j].y * factorY), maximumColor), 0);
             }
-            x[x.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).x * factorX), 65535), 0);
-            y[y.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).y * factorY), 65535), 0);
+            x[x.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).x * factorX), maximumColor), 0);
+            y[y.length - 1] = Math.max(Math.min((int) (knots.get(knots.size() - 1).y * factorY), maximumColor), 0);
 
             applyToneCurve(x, y, rgb);
+//            pointsY = getToneCurve();
+//            pknots_x = x;
+//            pknots_y = y;
         }
         else {
             int[] x = new int[2];
             int[] y = new int[2];
 
-            float factorX = 65536 / maxBoundaryX;
-            float factorY = 65536 / maxBoundaryY;
+            float factorX = (maximumColor + 1) / maxBoundaryX;
+            float factorY = (maximumColor + 1) / maxBoundaryY;
 
-            x[0] = Math.max(Math.min((int) (knots.get(0).x * factorX), 65535), 0);
-            y[0] = Math.max(Math.min((int) (knots.get(0).y * factorY), 65535), 0);
-            x[1] = Math.max(Math.min((int) (knots.get(1).x * factorX), 65535), 0);
-            y[1] = Math.max(Math.min((int) (knots.get(1).y * factorY), 65535), 0);
+            x[0] = Math.max(Math.min((int) (knots.get(0).x * factorX), maximumColor), 0);
+            y[0] = Math.max(Math.min((int) (knots.get(0).y * factorY), maximumColor), 0);
+            x[1] = Math.max(Math.min((int) (knots.get(1).x * factorX), maximumColor), 0);
+            y[1] = Math.max(Math.min((int) (knots.get(1).y * factorY), maximumColor), 0);
 
             applyToneCurve(x, y, rgb);
+//            pointsY = getToneCurve();
+        }
+    }
+
+    public void writeTxtFile(File dir) {
+        File file = new File(dir, "text");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        try {
+            File gpxfile = new File(file, "sample.txt");
+            FileWriter writer = new FileWriter(gpxfile);
+
+            for (int i = 0; i < pointsY.length; i++) {
+                writer.append(String.valueOf(pointsY[i]) + "\n");
+            }
+            writer.flush();
+            writer.close();
+            Log.i("SAVING", "DONE");
+
+            gpxfile = new File(file, "knots.txt");
+            writer = new FileWriter(gpxfile);
+
+            for (int i = 0; i < pknots_x.length; i++) {
+                writer.append(String.valueOf(pknots_x[i]) + "; " +  String.valueOf(pknots_y[i]) + "\n");
+            }
+
+            writer.flush();
+            writer.close();
+
+        } catch (Exception e) {
+            Log.i("EXCEPTION", String.valueOf(e));
         }
     }
 
@@ -117,6 +162,8 @@ public class LibRaw implements AutoCloseable {
 
     public native void getInfo();
     public native void applyToneCurve(int[] pointsX, int[] pointsY, int rgb);
+    public native int getMaximumColor();
+    public native int[] getToneCurve();
 
     /**
      * Methods Loading Data from a File

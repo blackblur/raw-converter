@@ -95,7 +95,7 @@ vector<double> computeBesierCurve2D(vector<double> xX, vector<double> yY, int st
 
         double t = ts[0];
         for (double j : ts) {
-            if (j >=0 && j < 65536) {
+            if (j >=0.0 && j <= 1.0) {
                 t = j;
                 break;
             }

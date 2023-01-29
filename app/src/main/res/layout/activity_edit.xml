@@ -255,6 +255,42 @@
                     android:text="Linear" />
             </RadioGroup>
 
+            <TextView
+                android:id="@+id/brightness_tonemap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"
+                android:text="Brightness"
+
+                android:textSize="18sp" />
+
+            <SeekBar
+                android:id="@+id/brightness_tonemap_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/contrast_tonemap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"
+                android:text="Contrast"
+
+                android:textSize="18sp" />
+
+            <SeekBar
+                android:id="@+id/contrast_tonemap_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1" />
+
         </LinearLayout>
 
         <LinearLayout

@@ -26,6 +26,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarItemView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -48,6 +49,8 @@ public class EditActivity extends AppCompatActivity {
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
     Button resetButton;
+    SeekBar brightnessTonemapSeek, contrastTonemapSeek;
+    FloatingActionButton saveButton;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -77,6 +80,9 @@ public class EditActivity extends AppCompatActivity {
         toneCurveView.setVisibility(View.INVISIBLE);
         bottomNavigation = findViewById(R.id.bottom_navigation);
         resetButton = findViewById(R.id.reset_btn);
+        brightnessTonemapSeek = findViewById(R.id.brightness_tonemap_seekbar);
+        contrastTonemapSeek = findViewById(R.id.contrast_tonemap_seekbar);
+        saveButton = findViewById(R.id.floatingActionButton);
 
         // Hide options
         whiteBalancingGroup.setVisibility(View.VISIBLE);
@@ -119,6 +125,14 @@ public class EditActivity extends AppCompatActivity {
                 }
             }.start();
         }
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("DO SAVING", "SAVING");
+//                libraw.writeTxtFile(EditActivity.this.getFilesDir());
+            }
+        });
 
         // Wire process button
         processButton.setOnClickListener(new View.OnClickListener() {
@@ -261,6 +275,38 @@ public class EditActivity extends AppCompatActivity {
                     processRaw(true);
                 }
                 return false;
+            }
+        });
+
+        brightnessTonemapSeek.setProgress(50);
+        brightnessTonemapSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        contrastTonemapSeek.setProgress(50);
+        contrastTonemapSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 

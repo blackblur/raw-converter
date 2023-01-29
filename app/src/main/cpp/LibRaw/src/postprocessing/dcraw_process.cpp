@@ -268,7 +268,7 @@ int LibRaw::dcraw_process(void)
   }
 }
 
-int LibRaw::dcraw_process_2(ushort *toneCurves[]) {
+int LibRaw::dcraw_process_2(ushort *toneCurves[], short *toneVals[]) {
   try
   {
 
