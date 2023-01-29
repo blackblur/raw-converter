@@ -24,6 +24,7 @@ public class ToneCurveView extends View {
     List<Point> knots_r = new ArrayList<>();
     List<Point> knots_g = new ArrayList<>();
     List<Point> knots_b = new ArrayList<>();
+    List<Point> knots_all = new ArrayList<>();
     List<List<Point>> knotsList = new ArrayList<>();
 
     int obj_radius = 20;
@@ -42,12 +43,15 @@ public class ToneCurveView extends View {
     Point[] firstCP_b;
     Point[] secondCP_b;
 
-    Point[][] firstCPArr = {firstCP, firstCP_g, firstCP_b};
-    Point[][] secondCPArr = {secondCP, secondCP_g, secondCP_b};
+    Point[] firstCP_all;
+    Point[] secondCP_all;
+
+    Point[][] firstCPArr = {firstCP, firstCP_g, firstCP_b, firstCP_all};
+    Point[][] secondCPArr = {secondCP, secondCP_g, secondCP_b, secondCP_all};
 
     int currentRGB = 0;
 
-    String[] rgbColors = {"#FF0000", "#00FF00", "#0000FF"};
+    String[] rgbColors = {"#FF0000", "#00FF00", "#0000FF", "#FFFFFF"};
 
     float maxBoundary_x;
     float maxBoundary_y;
@@ -90,19 +94,20 @@ public class ToneCurveView extends View {
         knotsList.add(knots_r);
         knotsList.add(knots_g);
         knotsList.add(knots_b);
+        knotsList.add(knots_all);
     }
 
     private void drawGrid(Canvas canvas) {
         canvas.drawLine(0, 0, this.getMeasuredWidth(), 0, paint_grid);  // Upper line
-        canvas.drawLine(0, maxBoundary_y/4, this.getMeasuredWidth(), maxBoundary_y/4, paint_grid_inner);  // Upper line
-        canvas.drawLine(0, 2 * maxBoundary_y/4, this.getMeasuredWidth(), 2 * maxBoundary_y/4, paint_grid_inner);
-        canvas.drawLine(0, 3 * maxBoundary_y/4, this.getMeasuredWidth(), 3 * maxBoundary_y/4, paint_grid_inner);
+        canvas.drawLine(0, maxBoundary_y / 4, this.getMeasuredWidth(), maxBoundary_y / 4, paint_grid_inner);  // Upper line
+        canvas.drawLine(0, 2 * maxBoundary_y / 4, this.getMeasuredWidth(), 2 * maxBoundary_y / 4, paint_grid_inner);
+        canvas.drawLine(0, 3 * maxBoundary_y / 4, this.getMeasuredWidth(), 3 * maxBoundary_y / 4, paint_grid_inner);
         canvas.drawLine(0, this.getMeasuredHeight(), this.getMeasuredWidth(), this.getMeasuredHeight(), paint_grid);  // Bottom Line
 
         canvas.drawLine(0, 0, 0, this.getMeasuredHeight(), paint_grid);  // Left line\
         canvas.drawLine(maxBoundary_x / 4, 0, maxBoundary_x / 4, this.getMeasuredHeight(), paint_grid_inner);  // Left line
-        canvas.drawLine( 2 * maxBoundary_x / 4, 0, 2 * maxBoundary_x / 4, this.getMeasuredHeight(), paint_grid_inner);  // Left line
-        canvas.drawLine( 3 * maxBoundary_x / 4, 0, 3 * maxBoundary_x / 4, this.getMeasuredHeight(), paint_grid_inner);  // Left line
+        canvas.drawLine(2 * maxBoundary_x / 4, 0, 2 * maxBoundary_x / 4, this.getMeasuredHeight(), paint_grid_inner);  // Left line
+        canvas.drawLine(3 * maxBoundary_x / 4, 0, 3 * maxBoundary_x / 4, this.getMeasuredHeight(), paint_grid_inner);  // Left line
         canvas.drawLine(this.getMeasuredWidth(), 0, this.getMeasuredWidth(), this.getMeasuredHeight(), paint_grid);  // Right Line
 
         canvas.drawLine(0, 0, this.getMeasuredWidth(), this.getMeasuredHeight(), paint_grid);  // Diagonal Line
@@ -210,7 +215,7 @@ public class ToneCurveView extends View {
         maxBoundary_y = this.getMeasuredHeight();
 
         // Add first point and second point
-        for (int i=0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             knotsList.get(i).add(new Point(0.f, 0.f));
             knotsList.get(i).add(new Point((float) this.getMeasuredWidth(), (float) this.getMeasuredHeight()));
         }

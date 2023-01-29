@@ -114,16 +114,45 @@ Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw
             yCurve = computeBesierCurve2D(xX, yY, bodyX[i], bodyX[i + 3]);
 
             for (double curve: yCurve) {
-                toneCurves[rgb][index] = (int) curve;
+                if (rgb == 3) {
+                    toneCurves[0][index] = (int) curve;
+                    toneCurves[1][index] = (int) curve;
+                    toneCurves[2][index] = (int) curve;
+                }
+                else {
+                    toneCurves[rgb][index] = (int) curve;
+                }
                 index++;
             }
 
         }
-        toneCurves[rgb][index] = bodyY[len - 1];
+        if (rgb == 3) {
+            toneCurves[0][index] = bodyY[len - 1];
+            toneCurves[1][index] = bodyY[len - 1];
+            toneCurves[2][index] = bodyY[len - 1];
+        }
+        else {
+            toneCurves[rgb][index] = bodyY[len - 1];
+        }
     }
     else {
         for (int i = 0; i < 0x10000; i++) {
-            toneCurves[rgb][i] = (int) ((double)i * (double)(bodyY[1] - bodyY[0]) / (bodyX[1] - bodyX[0]) + (double)bodyY[0]);
+            if (rgb == 3) {
+                toneCurves[0][i] = (int) (
+                        (double) i * (double) (bodyY[1] - bodyY[0]) / (bodyX[1] - bodyX[0]) +
+                        (double) bodyY[0]);;
+                toneCurves[1][i] = (int) (
+                        (double) i * (double) (bodyY[1] - bodyY[0]) / (bodyX[1] - bodyX[0]) +
+                        (double) bodyY[0]);;
+                toneCurves[2][i] = (int) (
+                        (double) i * (double) (bodyY[1] - bodyY[0]) / (bodyX[1] - bodyX[0]) +
+                        (double) bodyY[0]);;
+            }
+            else {
+                toneCurves[rgb][i] = (int) (
+                        (double) i * (double) (bodyY[1] - bodyY[0]) / (bodyX[1] - bodyX[0]) +
+                        (double) bodyY[0]);
+            }
         }
     }
 

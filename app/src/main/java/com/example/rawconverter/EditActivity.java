@@ -183,6 +183,8 @@ public class EditActivity extends AppCompatActivity {
                     toneSelection = 1;
                 } else if (findViewById(i) == findViewById(R.id.radio_tone_blue)) {
                     toneSelection = 2;
+                } else if (findViewById(i) == findViewById(R.id.radio_all)) {
+                    toneSelection = 3;
                 }
                 toneCurveView.changeColor(toneSelection);
             }
