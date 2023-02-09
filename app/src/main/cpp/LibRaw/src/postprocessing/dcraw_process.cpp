@@ -268,7 +268,7 @@ int LibRaw::dcraw_process(void)
   }
 }
 
-int LibRaw::dcraw_process_2(ushort *toneCurves[], short *toneVals[]) {
+int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[]) {
   try
   {
 
@@ -288,9 +288,9 @@ int LibRaw::dcraw_process_2(ushort *toneCurves[], short *toneVals[]) {
            row < S.height; row++) {
         for (col = 0; col < S.width; col++, img += 4, tempimg += 4) {
 
-          img[0] = CLIP((int) toneCurves[0][tempimg[0]]);
-          img[1] = CLIP((int) toneCurves[1][tempimg[1]]);
-          img[2] = CLIP((int) toneCurves[2][tempimg[2]]);
+          img[0] = CLIP((int) (toneCurves[0][tempimg[0]] * toneVals[0][1] + toneVals[0][0]));
+          img[1] = CLIP((int) (toneCurves[1][tempimg[1]] * toneVals[1][1] + toneVals[1][0]));
+          img[2] = CLIP((int) (toneCurves[2][tempimg[2]] * toneVals[2][1] + toneVals[2][0]));
 
         }
       }

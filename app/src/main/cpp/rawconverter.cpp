@@ -41,12 +41,12 @@ ushort initCurve[0x10000];
 ushort toneCurveR[0x10000];
 ushort toneCurveG[0x10000];
 ushort toneCurveB[0x10000];
-ushort* toneCurves[3] = {toneCurveR, toneCurveG, toneCurveB};
+ushort *toneCurves[3] = {toneCurveR, toneCurveG, toneCurveB};
 
-short toneValR[0x10000];
-short toneValG[0x10000];
-short toneValB[0x10000];
-short* toneVals[3] = {toneValR, toneValG, toneValB};
+float toneValR[2];
+float toneValG[2];
+float toneValB[2];
+float *toneVals[3] = {toneValR, toneValG, toneValB};
 
 void cleanup() {
     if (libRawData != nullptr) {
@@ -75,26 +75,26 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_getInfo(JNIEnv *env, jobject jLibRaw) {
     int use_camera_wb = libRawData->params.use_camera_wb;
     int auto_wb = libRawData->params.use_auto_wb;
-    __android_log_print(ANDROID_LOG_INFO, "libraw", "Camera WB: %d, Auto WB: %d", use_camera_wb,
-                        auto_wb);
-    __android_log_print(ANDROID_LOG_INFO, "libraw", "Mul %f %f %f %f",
-                        libRawData->params.user_mul[0],
-                        libRawData->params.user_mul[1],
-                        libRawData->params.user_mul[2],
-                        libRawData->params.user_mul[3]);
-    __android_log_print(ANDROID_LOG_INFO, "libraw", "Brightness %f", libRawData->params.bright);
-    __android_log_print(ANDROID_LOG_INFO, "libraw", "Gamma %f %f",
-                        libRawData->params.gamm[0],
-                        libRawData->params.gamm[1]);
-
-    __android_log_print(ANDROID_LOG_INFO, "libraw", "Output Color %d",
-                        libRawData->params.output_color);
-
+//    __android_log_print(ANDROID_LOG_INFO, "libraw", "Camera WB: %d, Auto WB: %d", use_camera_wb,
+//                        auto_wb);
+//    __android_log_print(ANDROID_LOG_INFO, "libraw", "Mul %f %f %f %f",
+//                        libRawData->params.user_mul[0],
+//                        libRawData->params.user_mul[1],
+//                        libRawData->params.user_mul[2],
+//                        libRawData->params.user_mul[3]);
+//    __android_log_print(ANDROID_LOG_INFO, "libraw", "Brightness %f", libRawData->params.bright);
+//    __android_log_print(ANDROID_LOG_INFO, "libraw", "Gamma %f %f",
+//                        libRawData->params.gamm[0],
+//                        libRawData->params.gamm[1]);
+//
+//    __android_log_print(ANDROID_LOG_INFO, "libraw", "Output Color %d",
+//                        libRawData->params.output_color);
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw,
-                                                    jintArray pointsX, jintArray pointsY, jint rgb) {
+                                                    jintArray pointsX, jintArray pointsY,
+                                                    jint rgb) {
     jsize len = env->GetArrayLength(pointsX);
     jint *bodyX = env->GetIntArrayElements(pointsX, nullptr);
     jint *bodyY = env->GetIntArrayElements(pointsY, nullptr);
@@ -118,8 +118,7 @@ Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw
                     toneCurves[0][index] = (int) curve;
                     toneCurves[1][index] = (int) curve;
                     toneCurves[2][index] = (int) curve;
-                }
-                else {
+                } else {
                     toneCurves[rgb][index] = (int) curve;
                 }
                 index++;
@@ -130,12 +129,10 @@ Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw
             toneCurves[0][index] = bodyY[len - 1];
             toneCurves[1][index] = bodyY[len - 1];
             toneCurves[2][index] = bodyY[len - 1];
-        }
-        else {
+        } else {
             toneCurves[rgb][index] = bodyY[len - 1];
         }
-    }
-    else {
+    } else {
         for (int i = 0; i < 0x10000; i++) {
             if (rgb == 3) {
                 toneCurves[0][i] = (int) (
@@ -147,8 +144,7 @@ Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw
                 toneCurves[2][i] = (int) (
                         (double) i * (double) (bodyY[1] - bodyY[0]) / (bodyX[1] - bodyX[0]) +
                         (double) bodyY[0]);;
-            }
-            else {
+            } else {
                 toneCurves[rgb][i] = (int) (
                         (double) i * (double) (bodyY[1] - bodyY[0]) / (bodyX[1] - bodyX[0]) +
                         (double) bodyY[0]);
@@ -158,6 +154,38 @@ Java_com_example_rawconverter_LibRaw_applyToneCurve(JNIEnv *env, jobject jLibRaw
 
     env->ReleaseIntArrayElements(pointsX, bodyX, 0);
     env->ReleaseIntArrayElements(pointsY, bodyY, 0);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_rawconverter_LibRaw_applyContrast(JNIEnv *env, jobject jLibRaw, jfloat value,
+                                                   jint rgb) {
+    if (rgb == 3) {
+        toneVals[0][1] = value;
+        toneVals[1][1] = value;
+        toneVals[2][1] = value;
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "Contrast Val %f",
+                            value);
+    } else {
+        toneVals[rgb][1] = value;
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "Contrast Val %f",
+                            value);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_rawconverter_LibRaw_applyBrightness(JNIEnv *env, jobject jLibRaw, jfloat value,
+                                                   jint rgb) {
+    if (rgb == 3) {
+        toneVals[0][0] = value;
+        toneVals[1][0] = value;
+        toneVals[2][0] = value;
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "Brightness Val %f",
+                            value);
+    } else {
+        toneVals[rgb][0] = value;
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "Brightness Val %f",
+                            value);
+    }
 }
 
 extern "C" JNIEXPORT jintArray JNICALL
@@ -182,6 +210,10 @@ Java_com_example_rawconverter_LibRaw_getMaximumColor(JNIEnv *env, jobject jLibRa
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_init(JNIEnv *env, jobject jLibRaw, int flags) {
     cleanup();
+    for (auto & toneVal : toneVals) {
+        toneVal[0] = 0.f;
+        toneVal[1] = 1.f;
+    }
     libRawData = libraw_init(flags);
 }
 

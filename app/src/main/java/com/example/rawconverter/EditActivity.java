@@ -44,7 +44,7 @@ public class EditActivity extends AppCompatActivity {
     Group whiteBalancingGroup, toneMappingGroup, extraGroup;
     Button processButton;
     ProgressBar progressCircle;
-    RadioGroup whiteBalancingRadioGroup, toneRadioGroup, curveRadioGroup;
+    RadioGroup whiteBalancingRadioGroup, toneRadioGroup;
     SeekBar brightnessSeek, gammaSeek;
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
@@ -73,7 +73,6 @@ public class EditActivity extends AppCompatActivity {
         processButton = findViewById(R.id.process_btn);
         whiteBalancingRadioGroup = findViewById(R.id.radio_group_white_balancing);
         toneRadioGroup = findViewById(R.id.radio_group_tone);
-        curveRadioGroup = findViewById(R.id.radio_group_curve);
         brightnessSeek = findViewById(R.id.brightness_seekbar);
         gammaSeek = findViewById(R.id.gamma_seekbar);
         toneCurveView = findViewById(R.id.tone_curve);
@@ -189,14 +188,6 @@ public class EditActivity extends AppCompatActivity {
                 toneCurveView.changeColor(toneSelection);
             }
         });
-        curveRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                // TODO: Set curve selection
-                curveSelection = i;
-            }
-        });
-
 
         // Wire bottom menu
         bottomNavigation.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -292,11 +283,14 @@ public class EditActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                float seekVal = seekBar.getProgress();
+                float brightnessVal = 65535 * seekVal / 100 - (65535f/2); // Scale to range 0-2
+                libraw.applyBrightness(brightnessVal, toneSelection);
+                processRaw(true);
             }
         });
 
-        contrastTonemapSeek.setProgress(50);
+        contrastTonemapSeek.setProgress(10);
         contrastTonemapSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -308,7 +302,10 @@ public class EditActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                float seekVal = seekBar.getProgress();
+                float contrastVal = 10 * seekVal / 100; // Scale to range 0-2
+                libraw.applyContrast(contrastVal, toneSelection);
+                processRaw(true);
             }
         });
 

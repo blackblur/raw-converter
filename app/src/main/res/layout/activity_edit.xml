@@ -171,7 +171,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:text="Color"
+                android:text="Color Curve"
                 android:textSize="18sp" />
 
             <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
@@ -222,38 +222,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Reset Curves" />
-
-            <TextView
-                android:id="@+id/text_curve"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"
-                android:text="Curve Type"
-
-                android:textSize="18sp" />
-
-            <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/radio_group_curve"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checkedButton="@+id/radio_curve_bezier"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/radio_curve_bezier"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Cubic-Bezier-Splines" />
-
-                <RadioButton
-                    android:id="@+id/radio_curve_linear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Linear" />
-            </RadioGroup>
 
             <TextView
                 android:id="@+id/brightness_tonemap"

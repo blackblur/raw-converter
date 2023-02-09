@@ -162,6 +162,8 @@ public class LibRaw implements AutoCloseable {
 
     public native void getInfo();
     public native void applyToneCurve(int[] pointsX, int[] pointsY, int rgb);
+    public native void applyContrast(float value, int rgb);
+    public native void applyBrightness(float value, int rgb);
     public native int getMaximumColor();
     public native int[] getToneCurve();
 

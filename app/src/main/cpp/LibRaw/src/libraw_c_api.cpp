@@ -226,7 +226,7 @@ extern "C"
     LibRaw *ip = (LibRaw *)lr->parent_class;
     return ip->dcraw_process();
   }
-  int libraw_dcraw_process_2(libraw_data_t *lr, ushort* toneCurves[], short* toneVals[])
+  int libraw_dcraw_process_2(libraw_data_t *lr, ushort* toneCurves[], float* toneVals[])
   {
     if (!lr)
       return EINVAL;
