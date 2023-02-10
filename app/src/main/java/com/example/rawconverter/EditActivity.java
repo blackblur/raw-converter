@@ -49,7 +49,7 @@ public class EditActivity extends AppCompatActivity {
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
     Button resetButton;
-    SeekBar brightnessTonemapSeek, contrastTonemapSeek;
+    SeekBar brightnessTonemapSeek, contrastTonemapSeek, tempSeekBar, tintSeekBar;
     FloatingActionButton saveButton;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -81,6 +81,8 @@ public class EditActivity extends AppCompatActivity {
         resetButton = findViewById(R.id.reset_btn);
         brightnessTonemapSeek = findViewById(R.id.brightness_tonemap_seekbar);
         contrastTonemapSeek = findViewById(R.id.contrast_tonemap_seekbar);
+        tempSeekBar = findViewById(R.id.temp_seekBar);
+        tintSeekBar = findViewById(R.id.tint_seekBar);
         saveButton = findViewById(R.id.floatingActionButton);
 
         // Hide options
@@ -306,6 +308,49 @@ public class EditActivity extends AppCompatActivity {
                 float contrastVal = 10 * seekVal / 100; // Scale to range 0-2
                 libraw.applyContrast(contrastVal, toneSelection);
                 processRaw(true);
+            }
+        });
+
+        tempSeekBar.setProgress(10);
+        tempSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                float seekVal = seekBar.getProgress();
+                int a = libraw.getWBCTCoeff(1, 0);
+                int b = libraw.getWBCTCoeff(1, 1);
+                int c = libraw.getWBCTCoeff(1, 2);
+                int d = libraw.getWBCTCoeff(1, 3);
+                int e = libraw.getWBCTCoeff(1, 4);
+                libraw.setUserMul(new float[]{1f / seekVal, 1f, 1f, 1f});
+                processRaw(true);
+            }
+        });
+
+        tintSeekBar.setProgress(10);
+        tintSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 

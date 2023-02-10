@@ -369,6 +369,11 @@ Java_com_example_rawconverter_LibRaw_getBitmapHeight(JNIEnv *env, jobject obj) {
     return image->height;
 }
 
+extern "C" JNIEXPORT jint JNICALL
+Java_com_example_rawconverter_LibRaw_getWBCTCoeff(JNIEnv *env, jobject obj, jint cameraIndex, jint coeffIndex) {
+    return libRawData->color.WBCT_Coeffs[cameraIndex][coeffIndex];
+}
+
 /**
  * libraw_output_params_t: Management of dcraw-Style Postprocessing
  * Documentation https://www.libraw.org/docs/API-datastruct.html#libraw_output_params_t

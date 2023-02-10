@@ -197,6 +197,8 @@ public class LibRaw implements AutoCloseable {
 
     public native int getBitmapHeight();
 
+    public native int getWBCTCoeff(int cameraIndex, int coeffIndex);
+
     /**
      * libraw_output_params_t: Management of dcraw-Style Postprocessing
      */
