@@ -89,6 +89,32 @@ Java_com_example_rawconverter_LibRaw_getInfo(JNIEnv *env, jobject jLibRaw) {
 //
 //    __android_log_print(ANDROID_LOG_INFO, "libraw", "Output Color %d",
 //                        libRawData->params.output_color);
+
+//    __android_log_print(ANDROID_LOG_INFO, "libraw", "Output Color %d",
+//                        libRawData->params.output_color);
+    for (int i = 0; i < 256; i++) {
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "WB COEFF %d: %d %d %d %d",
+                            i,
+                            libRawData->color.WB_Coeffs[i][0],
+                            libRawData->color.WB_Coeffs[i][1],
+                            libRawData->color.WB_Coeffs[i][2],
+                            libRawData->color.WB_Coeffs[i][3]);
+    }
+    for (int i = 0; i < 64; i++) {
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "WBT COEFF %d: %f %f %f %f",
+                            i,
+                            libRawData->color.WBCT_Coeffs[i][0],
+                            libRawData->color.WBCT_Coeffs[i][1],
+                            libRawData->color.WBCT_Coeffs[i][2],
+                            libRawData->color.WBCT_Coeffs[i][3],
+                            libRawData->color.WBCT_Coeffs[i][4]);
+    }
+    __android_log_print(ANDROID_LOG_INFO, "libraw", "Multiplier: %f %f %f %f",
+                        libRawData->params.user_mul[0],
+                        libRawData->params.user_mul[1],
+                        libRawData->params.user_mul[2],
+                        libRawData->params.user_mul[3]);
+
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -297,8 +323,6 @@ Java_com_example_rawconverter_LibRaw_getPixels8(JNIEnv *env, jobject obj) {
         __android_log_print(ANDROID_LOG_INFO, "libraw", "getPixels8 image colors %d",
                             image->colors);
 
-        __android_log_print(ANDROID_LOG_INFO, "libraw", "asdfasdf %d %d",
-                            image->width, image->height);
         int x, y;
         for (y = 0; y < image->height; y++) {
             for (x = 0; x < image->width; x++) {
