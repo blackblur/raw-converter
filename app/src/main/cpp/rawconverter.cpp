@@ -37,7 +37,6 @@ Java_com_example_rawconverter_LibRaw_stringFromJNI(
  */
 libraw_data_t *libRawData = nullptr;
 libraw_processed_image_t *image = nullptr;
-ushort initCurve[0x10000];
 ushort toneCurveR[0x10000];
 ushort toneCurveG[0x10000];
 ushort toneCurveB[0x10000];
@@ -47,6 +46,11 @@ float toneValR[2];
 float toneValG[2];
 float toneValB[2];
 float *toneVals[3] = {toneValR, toneValG, toneValB};
+
+int wb_coeffs_ind[256] = {-1};
+int wbct_coeffs_ind[64] = {-1};
+int wb_ind_n = 0;
+int wbct_ind_n = 0;
 
 void cleanup() {
     if (libRawData != nullptr) {
@@ -92,28 +96,23 @@ Java_com_example_rawconverter_LibRaw_getInfo(JNIEnv *env, jobject jLibRaw) {
 
 //    __android_log_print(ANDROID_LOG_INFO, "libraw", "Output Color %d",
 //                        libRawData->params.output_color);
-    for (int i = 0; i < 256; i++) {
-        __android_log_print(ANDROID_LOG_INFO, "libraw", "WB COEFF %d: %d %d %d %d",
-                            i,
-                            libRawData->color.WB_Coeffs[i][0],
-                            libRawData->color.WB_Coeffs[i][1],
-                            libRawData->color.WB_Coeffs[i][2],
-                            libRawData->color.WB_Coeffs[i][3]);
-    }
-    for (int i = 0; i < 64; i++) {
-        __android_log_print(ANDROID_LOG_INFO, "libraw", "WBT COEFF %d: %f %f %f %f",
-                            i,
-                            libRawData->color.WBCT_Coeffs[i][0],
-                            libRawData->color.WBCT_Coeffs[i][1],
-                            libRawData->color.WBCT_Coeffs[i][2],
-                            libRawData->color.WBCT_Coeffs[i][3],
-                            libRawData->color.WBCT_Coeffs[i][4]);
-    }
-    __android_log_print(ANDROID_LOG_INFO, "libraw", "Multiplier: %f %f %f %f",
-                        libRawData->params.user_mul[0],
-                        libRawData->params.user_mul[1],
-                        libRawData->params.user_mul[2],
-                        libRawData->params.user_mul[3]);
+//    for (int i = 0; i < 256; i++) {
+//        __android_log_print(ANDROID_LOG_INFO, "libraw", "WB COEFF %d: %d %d %d %d",
+//                            i,
+//                            libRawData->color.WB_Coeffs[i][0],
+//                            libRawData->color.WB_Coeffs[i][1],
+//                            libRawData->color.WB_Coeffs[i][2],
+//                            libRawData->color.WB_Coeffs[i][3]);
+//    }
+//    for (int i = 0; i < 64; i++) {
+//        __android_log_print(ANDROID_LOG_INFO, "libraw", "WBT COEFF %d: %f %f %f %f",
+//                            i,
+//                            libRawData->color.WBCT_Coeffs[i][0],
+//                            libRawData->color.WBCT_Coeffs[i][1],
+//                            libRawData->color.WBCT_Coeffs[i][2],
+//                            libRawData->color.WBCT_Coeffs[i][3],
+//                            libRawData->color.WBCT_Coeffs[i][4]);
+//    }
 
 }
 
@@ -200,7 +199,7 @@ Java_com_example_rawconverter_LibRaw_applyContrast(JNIEnv *env, jobject jLibRaw,
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_applyBrightness(JNIEnv *env, jobject jLibRaw, jfloat value,
-                                                   jint rgb) {
+                                                     jint rgb) {
     if (rgb == 3) {
         toneVals[0][0] = value;
         toneVals[1][0] = value;
@@ -215,19 +214,62 @@ Java_com_example_rawconverter_LibRaw_applyBrightness(JNIEnv *env, jobject jLibRa
 }
 
 extern "C" JNIEXPORT jintArray JNICALL
-Java_com_example_rawconverter_LibRaw_getToneCurve(JNIEnv *env, jobject jLibRaw) {
-    jintArray jintArray = env->NewIntArray(0x10000);
-    jint fill[0x10000];
-    for (int i = 0; i < 0x10000; i++) {
-        fill[i] = toneCurves[0][i];
+Java_com_example_rawconverter_LibRaw_getWBInd(JNIEnv *env, jobject jLibRaw) {
+    if (wb_ind_n > 0) {
+        jintArray jintArray = env->NewIntArray(wb_ind_n);
+        jint fill[wb_ind_n];
+        for (int i = 0; i < wb_ind_n; i++) {
+            fill[i] = wb_coeffs_ind[i];
+        }
+        env->SetIntArrayRegion(jintArray, 0, wb_ind_n, fill);
+        return jintArray;
+    } else {
+        return nullptr;
     }
-    env->SetIntArrayRegion(jintArray, 0, 0x10000, fill);
-    return jintArray;
 }
 
-extern "C" JNIEXPORT int JNICALL
-Java_com_example_rawconverter_LibRaw_getMaximumColor(JNIEnv *env, jobject jLibRaw) {
-    return libRawData->color.maximum;
+extern "C" JNIEXPORT jintArray JNICALL
+Java_com_example_rawconverter_LibRaw_getWBCTInd(JNIEnv *env, jobject jLibRaw) {
+    if (wbct_ind_n > 0) {
+        jintArray jintArray = env->NewIntArray(wbct_ind_n);
+        jint fill[wbct_ind_n];
+        for (int i = 0; i < wbct_ind_n; i++) {
+            fill[i] = wbct_coeffs_ind[i];
+        }
+        env->SetIntArrayRegion(jintArray, 0, wbct_ind_n, fill);
+        return jintArray;
+    } else {
+        return nullptr;
+    }
+}
+
+extern "C" JNIEXPORT jfloatArray JNICALL
+Java_com_example_rawconverter_LibRaw_getWBCTTemp(JNIEnv *env, jobject jLibRaw) {
+    if (wbct_ind_n > 0) {
+        jfloatArray jfloatArray = env->NewFloatArray(wbct_ind_n);
+        jfloat fill[wbct_ind_n];
+        for (int i = 0; i < wbct_ind_n; i++) {
+            fill[i] = libRawData->color.WBCT_Coeffs[wbct_coeffs_ind[i]][0];
+        }
+        env->SetFloatArrayRegion(jfloatArray, 0, wbct_ind_n, fill);
+        return jfloatArray;
+    } else {
+        return nullptr;
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_rawconverter_LibRaw_applyWBUserMul(JNIEnv *env, jobject jLibRaw, jint index) {
+    for (int i = 0; i < 4; i++) {
+        libRawData->params.user_mul[i] = (float) libRawData->color.WB_Coeffs[index][i];
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_rawconverter_LibRaw_applyWBCTUserMul(JNIEnv *env, jobject jLibRaw, jint index) {
+    for (int i = 0; i < 4; i++) {
+        libRawData->params.user_mul[i] = (float) libRawData->color.WBCT_Coeffs[index][i+1];
+    }
 }
 
 /**
@@ -236,7 +278,7 @@ Java_com_example_rawconverter_LibRaw_getMaximumColor(JNIEnv *env, jobject jLibRa
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_init(JNIEnv *env, jobject jLibRaw, int flags) {
     cleanup();
-    for (auto & toneVal : toneVals) {
+    for (auto &toneVal: toneVals) {
         toneVal[0] = 0.f;
         toneVal[1] = 1.f;
     }
@@ -270,11 +312,29 @@ Java_com_example_rawconverter_LibRaw_openBuffer(JNIEnv *env, jobject obj, jbyteA
 
         // Copy initial color curve
         for (int i = 0; i < 0x10000; i++) {
-            initCurve[i] = libRawData->color.curve[i];
             toneCurves[0][i] = i;
             toneCurves[1][i] = i;
             toneCurves[2][i] = i;
         }
+
+        // Get number of entries in WB and WBCT to create array
+        int j = 0;
+        for (int i = 0; i < 256; i++) {
+            if(libRawData->color.WB_Coeffs[i][0] > 0) {
+                wb_coeffs_ind[j] = i;
+                j++;
+            }
+        }
+        wb_ind_n = j;
+
+        j = 0;
+        for (int i = 0; i < 64; i++) {
+            if(libRawData->color.WBCT_Coeffs[i][0] > 0) {
+                wbct_coeffs_ind[j] = i;
+                j++;
+            }
+        }
+        wbct_ind_n = j;
 
         env->ReleasePrimitiveArrayCritical(buffer, ptr, 0);
         return result;
@@ -393,11 +453,6 @@ Java_com_example_rawconverter_LibRaw_getBitmapHeight(JNIEnv *env, jobject obj) {
     return image->height;
 }
 
-extern "C" JNIEXPORT jint JNICALL
-Java_com_example_rawconverter_LibRaw_getWBCTCoeff(JNIEnv *env, jobject obj, jint cameraIndex, jint coeffIndex) {
-    return libRawData->color.WBCT_Coeffs[cameraIndex][coeffIndex];
-}
-
 /**
  * libraw_output_params_t: Management of dcraw-Style Postprocessing
  * Documentation https://www.libraw.org/docs/API-datastruct.html#libraw_output_params_t
@@ -473,18 +528,8 @@ Java_com_example_rawconverter_LibRaw_setUserMul(JNIEnv *env, jobject obj, jfloat
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setShotSelect(JNIEnv *env, jobject obj, jint shotSelect) {
-    libRawData->params.shot_select = shotSelect;
-}
-
-extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setBright(JNIEnv *env, jobject obj, jfloat bright) {
     libRawData->params.bright = bright;
-}
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setThreshold(JNIEnv *env, jobject obj, jfloat threshold) {
-    libRawData->params.threshold = threshold;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -549,26 +594,8 @@ Java_com_example_rawconverter_LibRaw_setUserBlack(JNIEnv *env, jobject obj, jint
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setUserCBlack(JNIEnv *env, jobject obj, jintArray cBlack) {
-    jsize len = env->GetArrayLength(cBlack);
-    if (len != 4) {
-        throw std::invalid_argument("cBlack Array should have a length of 4");
-    }
-    jint *body = env->GetIntArrayElements(cBlack, nullptr);
-    for (int i = 0; i < 4; i++) {
-        libRawData->params.aber[i] = body[i];
-    }
-    env->ReleaseIntArrayElements(cBlack, body, 0);
-}
-
-extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_setUserSat(JNIEnv *env, jobject obj, jint sat) {
     libRawData->params.user_sat = sat;
-}
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setMedPasses(JNIEnv *env, jobject obj, jint medPasses) {
-    libRawData->params.med_passes = medPasses;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -576,84 +603,28 @@ Java_com_example_rawconverter_LibRaw_setNoAutoBright(JNIEnv *env, jobject obj, j
     libRawData->params.no_auto_bright = noAutoBright;
 }
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setAutoBrightThr(JNIEnv *env, jobject obj,
-                                                      jfloat autoBrightThr) {
-    libRawData->params.auto_bright_thr = autoBrightThr;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setAdjustMaximumThr(JNIEnv *env, jobject obj,
-                                                         jfloat adjustMaximumThr) {
-    libRawData->params.adjust_maximum_thr = adjustMaximumThr;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setGreenMatching(JNIEnv *env, jobject obj,
-                                                      jint greenMatching) {
-    libRawData->params.green_matching = greenMatching;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setDcbIterations(JNIEnv *env, jobject obj,
-                                                      jint dcbIterations) {
-    libRawData->params.dcb_iterations = dcbIterations;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setDcbEnhanceFL(JNIEnv *env, jobject obj, jint dcbEnhanceFl) {
-    libRawData->params.dcb_enhance_fl = dcbEnhanceFl;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setFbddNoiserd(JNIEnv *env, jobject obj, jint fbddNoiserd) {
-    libRawData->params.fbdd_noiserd = fbddNoiserd;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setExpCorrec(JNIEnv *env, jobject obj, jint expCorrec) {
-    libRawData->params.exp_correc = expCorrec;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setExpShift(JNIEnv *env, jobject obj, jfloat expShift) {
-    libRawData->params.exp_shift = expShift;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setExpPreser(JNIEnv *env, jobject obj, jfloat expPreser) {
-    libRawData->params.exp_preser = expPreser;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setRawSpeed(JNIEnv *env, jobject obj, jint rawSpeed) {
-    libRawData->params.use_rawspeed = rawSpeed;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setDngSdk(JNIEnv *env, jobject obj, jint dngSdk) {
-    libRawData->params.use_dngsdk = dngSdk;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setNoAutoScale(JNIEnv *env, jobject obj, jint noAutoScale) {
-    libRawData->params.no_auto_scale = noAutoScale;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setNoInterpolation(JNIEnv *env, jobject obj, jint noInterpol) {
-    libRawData->params.no_interpolation = noInterpol;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setRawProcessingOptions(JNIEnv *env, jobject obj,
-                                                             jint options) {
-    libRawData->params.raw_processing_options = options;
-}
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setMaxRawMemoryMb(JNIEnv *env, jobject obj,
-                                                       jint maxRawMemoryMb) {
-    libRawData->params.max_raw_memory_mb = maxRawMemoryMb;
-}
+
+
+
+
+
+
+
+
+
+
 

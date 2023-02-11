@@ -52,6 +52,10 @@ public class EditActivity extends AppCompatActivity {
     SeekBar brightnessTonemapSeek, contrastTonemapSeek, tempSeekBar, tintSeekBar;
     FloatingActionButton saveButton;
 
+    int[] wbct_ind;
+    float[] wbct_labels;
+    int[] wb_ind;
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +94,7 @@ public class EditActivity extends AppCompatActivity {
         toneMappingGroup.setVisibility(View.GONE);
         extraGroup.setVisibility(View.GONE);
 
+
         // Get bitmap
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -112,15 +117,22 @@ public class EditActivity extends AppCompatActivity {
 
                     if (inputData != null) {
                         int status = libraw.openBuffer(inputData, inputData.length);
-                        final Bitmap bitmap = libraw.decodeAsBitmap(true, false);
-                        if (bitmap != null) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressCircle.setVisibility(View.GONE);
-                                    imageView.setImageBitmap(bitmap);
-                                }
-                            });
+                        if (status == 0) {
+                            final Bitmap bitmap = libraw.decodeAsBitmap(true, false);
+                            if (bitmap != null) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressCircle.setVisibility(View.GONE);
+                                        imageView.setImageBitmap(bitmap);
+                                    }
+                                });
+                            }
+
+                            wb_ind = libraw.getWBInd();
+                            wbct_ind = libraw.getWBCTInd();
+                            wbct_labels = libraw.getWBCTTemp();
+
                         }
                     }
                 }
@@ -132,6 +144,11 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.i("DO SAVING", "SAVING");
 //                libraw.writeTxtFile(EditActivity.this.getFilesDir());
+                if (wbct_labels != null) {
+                    for (int i = 0; i < wbct_labels.length; i++) {
+                        Log.i("WB COEFF", String.valueOf(wbct_labels[i]));
+                    }
+                }
             }
         });
 
@@ -286,7 +303,7 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 float seekVal = seekBar.getProgress();
-                float brightnessVal = 65535 * seekVal / 100 - (65535f/2); // Scale to range 0-2
+                float brightnessVal = 65535 * seekVal / 100 - (65535f / 2); // Scale to range 0-2
                 libraw.applyBrightness(brightnessVal, toneSelection);
                 processRaw(true);
             }
@@ -325,14 +342,14 @@ public class EditActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                float seekVal = seekBar.getProgress();
-                int a = libraw.getWBCTCoeff(1, 0);
-                int b = libraw.getWBCTCoeff(1, 1);
-                int c = libraw.getWBCTCoeff(1, 2);
-                int d = libraw.getWBCTCoeff(1, 3);
-                int e = libraw.getWBCTCoeff(1, 4);
-                libraw.setUserMul(new float[]{1f / seekVal, 1f, 1f, 1f});
-                processRaw(true);
+//                float seekVal = seekBar.getProgress();
+//                int a = libraw.getWBCTCoeff(1, 0);
+//                int b = libraw.getWBCTCoeff(1, 1);
+//                int c = libraw.getWBCTCoeff(1, 2);
+//                int d = libraw.getWBCTCoeff(1, 3);
+//                int e = libraw.getWBCTCoeff(1, 4);
+//                libraw.setUserMul(new float[]{1f / seekVal, 1f, 1f, 1f});
+//                processRaw(true);
             }
         });
 

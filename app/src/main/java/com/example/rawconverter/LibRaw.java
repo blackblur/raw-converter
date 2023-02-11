@@ -20,6 +20,8 @@ public class LibRaw implements AutoCloseable {
     int[] pointsY;
     int[] pknots_x;
     int[] pknots_y;
+    float[][] wbctCoeffs;
+    int[][] wbCoeffs;
 
     public LibRaw(int flags) {
         init(flags);
@@ -106,8 +108,7 @@ public class LibRaw implements AutoCloseable {
 //            pointsY = getToneCurve();
 //            pknots_x = x;
 //            pknots_y = y;
-        }
-        else {
+        } else {
             int[] x = new int[2];
             int[] y = new int[2];
 
@@ -144,7 +145,7 @@ public class LibRaw implements AutoCloseable {
             writer = new FileWriter(gpxfile);
 
             for (int i = 0; i < pknots_x.length; i++) {
-                writer.append(String.valueOf(pknots_x[i]) + "; " +  String.valueOf(pknots_y[i]) + "\n");
+                writer.append(String.valueOf(pknots_x[i]) + "; " + String.valueOf(pknots_y[i]) + "\n");
             }
 
             writer.flush();
@@ -161,11 +162,22 @@ public class LibRaw implements AutoCloseable {
     public native String stringFromJNI();  // Test Function
 
     public native void getInfo();
+
     public native void applyToneCurve(int[] pointsX, int[] pointsY, int rgb);
+
     public native void applyContrast(float value, int rgb);
+
     public native void applyBrightness(float value, int rgb);
-    public native int getMaximumColor();
-    public native int[] getToneCurve();
+
+    public native int[] getWBInd();
+
+    public native int[] getWBCTInd();
+
+    public native float[] getWBCTTemp();
+
+    public native void applyWBUserMul(int index);
+
+    public native void applyWBCTUserMul(int index);
 
     /**
      * Methods Loading Data from a File
@@ -197,8 +209,6 @@ public class LibRaw implements AutoCloseable {
 
     public native int getBitmapHeight();
 
-    public native int getWBCTCoeff(int cameraIndex, int coeffIndex);
-
     /**
      * libraw_output_params_t: Management of dcraw-Style Postprocessing
      */
@@ -214,11 +224,7 @@ public class LibRaw implements AutoCloseable {
 
     public native void setUserMul(float[] userMul);
 
-    public native void setShotSelect(int shotSelect);
-
     public native void setBright(float bright);
-
-    public native void setThreshold(float threshold);
 
     public native void setHalfSize(boolean halfSize);
 
@@ -244,41 +250,8 @@ public class LibRaw implements AutoCloseable {
 
     public native void setUserBlack(int black);
 
-    public native void setUserCBlack(int[] cBlack);
-
     public native void setUserSat(int sat);
 
-    public native void setMedPasses(int sat);
-
     public native void setNoAutoBright(int notAutoBright);
-
-    public native void setAutoBrightThr(float autoBrightThr);
-
-    public native void setAdjustMaximumThr(float adjustMaximumThr);
-
-    public native void setGreenMatching(int greenMatching);
-
-    public native void setDcbIterations(int dcbIterations);
-
-    public native void setDcbEnhanceFL(int dcbEnhanceFl);
-
-    public native void setFbddNoiserd(int fbddNoiserd);
-
-    public native void setExpCorrec(int expCorrec);
-
-    public native void setExpShift(float expShift);
-
-    public native void setExpPreser(float expPreser);
-
-    public native void setRawSpeed(int rawSpeed);
-
-    public native void setDngSdk(int dngSdk);
-
-    public native void setNoAutoScale(int noAutoScale);
-
-    public native void setNoInterpolation(int noInterpol);
-
-    public native void setRawProcessingOptions(int options);
-
-    public native void setMaxRawMemoryMb(int maxRawMemoryMb);
 }
+
