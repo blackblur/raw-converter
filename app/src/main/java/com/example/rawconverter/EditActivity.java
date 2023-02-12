@@ -12,12 +12,15 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -44,12 +47,11 @@ public class EditActivity extends AppCompatActivity {
     SeekBar brightnessToneSeek, contrastToneSeek, tempSeekBar, tintSeekBar;
     FloatingActionButton saveButton;
     Switch toneCurveSwitch;
+    Spinner tonemapSpinner;
 
     int[] wbct_ind;
     float[] wbct_labels;
     int[] wb_ind;
-
-    boolean toneMapIndex = false;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -86,6 +88,11 @@ public class EditActivity extends AppCompatActivity {
         tintSeekBar = findViewById(R.id.tint_seekBar);
         saveButton = findViewById(R.id.floatingActionButton);
         toneCurveSwitch = findViewById(R.id.tone_curve_switch);
+        tonemapSpinner = findViewById(R.id.tonemap_spinner);
+
+        // Populate tonemap Spinner
+        ArrayAdapter<CharSequence> tonemap_adapter = ArrayAdapter.createFromResource(this, R.array.tonemap_array, android.R.layout.simple_spinner_dropdown_item);
+        tonemapSpinner.setAdapter(tonemap_adapter);
 
         // Hide options
         whiteBalancingGroup.setVisibility(View.VISIBLE);
@@ -144,9 +151,8 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.i("DO SAVING", "SAVING");
 //                libraw.writeTxtFile(EditActivity.this.getFilesDir());
-                toneMapIndex = !toneMapIndex;
-                libraw.setToneMap(toneMapIndex);
-                processRaw(true);
+
+//                processRaw(true);
             }
         });
 
@@ -396,6 +402,19 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
+            }
+        });
+
+        tonemapSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                libraw.setToneMap(pos);
+                processRaw(true);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Another interface callback
             }
         });
 

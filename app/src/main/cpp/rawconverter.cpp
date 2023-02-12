@@ -275,8 +275,8 @@ Java_com_example_rawconverter_LibRaw_applyWBCTUserMul(JNIEnv *env, jobject jLibR
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_rawconverter_LibRaw_setToneMap(JNIEnv *env, jobject jLibRaw, jboolean index) {
-    toneMappingInd = (int) index;
+Java_com_example_rawconverter_LibRaw_setToneMap(JNIEnv *env, jobject jLibRaw, jint index) {
+    toneMappingInd = index;
 }
 
 /**

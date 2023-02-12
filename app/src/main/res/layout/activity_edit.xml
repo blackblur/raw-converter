@@ -313,13 +313,17 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/test"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="1"
-                android:text="Brightness" />
+                android:text="Algorithm" />
+
+            <Spinner
+                android:id="@+id/tonemap_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"/>
 
         </LinearLayout>
 
