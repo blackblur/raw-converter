@@ -8,7 +8,7 @@
     <item
         android:id="@+id/menu_color_correction"
         android:enabled="true"
-        android:icon="@drawable/ic_tone_mapping"
+        android:icon="@drawable/ic_color_correction"
         android:title="Color Correction"/>
     <item
         android:id="@+id/menu_tonemap"
