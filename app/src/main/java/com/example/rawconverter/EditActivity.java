@@ -35,13 +35,12 @@ public class EditActivity extends AppCompatActivity {
     LibRaw libraw;
     ImageView imageView;
     Group whiteBalancingGroup, colorCorrectionGroup, tonemapGroup, extraGroup;
-    Button processButton;
+    Button processButton,resetButton, resetGainButton;
     ProgressBar progressCircle;
     RadioGroup whiteBalancingRadioGroup, toneRadioGroup;
     SeekBar brightnessSeek, gammaSeek;
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
-    Button resetButton;
     SeekBar brightnessToneSeek, contrastToneSeek, tempSeekBar, tintSeekBar;
     FloatingActionButton saveButton;
     Switch toneCurveSwitch;
@@ -80,6 +79,7 @@ public class EditActivity extends AppCompatActivity {
         toneCurveView.setVisibility(View.INVISIBLE);
         bottomNavigation = findViewById(R.id.bottom_navigation);
         resetButton = findViewById(R.id.reset_btn);
+        resetGainButton = findViewById(R.id.reset_gain_btn);
         brightnessToneSeek = findViewById(R.id.brightness_tone_seekbar);
         contrastToneSeek = findViewById(R.id.contrast_tone_seekbar);
         tempSeekBar = findViewById(R.id.temp_seekBar);
@@ -165,6 +165,18 @@ public class EditActivity extends AppCompatActivity {
                 libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y,
                         toneCurveView.firstCPArr[toneSelection], toneCurveView.secondCPArr[toneSelection],
                         toneCurveView.knotsList.get(toneSelection), toneSelection);
+                processRaw(true);
+
+            }
+        });
+
+        resetGainButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                brightnessToneSeek.setProgress(50);
+                contrastToneSeek.setProgress(10);
+                libraw.applyBrightness(0f, toneSelection);
+                libraw.applyContrast(1.0f, toneSelection);
                 processRaw(true);
 
             }
