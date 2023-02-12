@@ -98,14 +98,14 @@ Java_com_example_rawconverter_LibRaw_getInfo(JNIEnv *env, jobject jLibRaw) {
 
 //    __android_log_print(ANDROID_LOG_INFO, "libraw", "Output Color %d",
 //                        libRawData->params.output_color);
-//    for (int i = 0; i < 256; i++) {
-//        __android_log_print(ANDROID_LOG_INFO, "libraw", "WB COEFF %d: %d %d %d %d",
-//                            i,
-//                            libRawData->color.WB_Coeffs[i][0],
-//                            libRawData->color.WB_Coeffs[i][1],
-//                            libRawData->color.WB_Coeffs[i][2],
-//                            libRawData->color.WB_Coeffs[i][3]);
-//    }
+    for (int i = 0; i < 256; i++) {
+        __android_log_print(ANDROID_LOG_INFO, "libraw", "WB COEFF %d: %d %d %d %d",
+                            i,
+                            libRawData->color.WB_Coeffs[i][0],
+                            libRawData->color.WB_Coeffs[i][1],
+                            libRawData->color.WB_Coeffs[i][2],
+                            libRawData->color.WB_Coeffs[i][3]);
+    }
 //    for (int i = 0; i < 64; i++) {
 //        __android_log_print(ANDROID_LOG_INFO, "libraw", "WBT COEFF %d: %f %f %f %f",
 //                            i,

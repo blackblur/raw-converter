@@ -63,7 +63,7 @@ public class LibRaw implements AutoCloseable {
             setHalfSize(halfSize);
 //            setOutputColor(2);
 
-//            getInfo();
+            getInfo();
 
             int[] pixels;
 

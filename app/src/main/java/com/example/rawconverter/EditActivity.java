@@ -23,7 +23,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -51,14 +53,15 @@ public class EditActivity extends AppCompatActivity {
     Group whiteBalancingGroup, colorCorrectionGroup, tonemapGroup, extraGroup;
     Button processButton, resetButton, resetGainButton;
     ProgressBar progressCircle;
-    RadioGroup whiteBalancingRadioGroup, toneRadioGroup;
+    RadioGroup toneRadioGroup;
     SeekBar brightnessSeek, gammaSeek;
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
-    SeekBar brightnessToneSeek, contrastToneSeek;
+    SeekBar brightnessToneSeek, contrastToneSeek, seekR, seekB;
     FloatingActionButton saveButton;
     Switch toneCurveSwitch;
-    Spinner tonemapSpinner, wbSpinner, wbctSpinner;
+    Spinner tonemapSpinner, wbSpinner, wbctSpinner, wbOptionSpinner;
+    LinearLayout wbSeekGroup;
 
     View saveView;
     ConstraintLayout saveLayout;
@@ -66,7 +69,8 @@ public class EditActivity extends AppCompatActivity {
     int[] wbct_ind;
     float[] wbct_labels;
     int[] wb_ind;
-    boolean wbInfoReceived = false;
+
+    ArrayList<String> wbOptionsLabel = new ArrayList<String>();
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -88,7 +92,6 @@ public class EditActivity extends AppCompatActivity {
         extraGroup = findViewById(R.id.extra_group);
         progressCircle = findViewById(R.id.img_loading_circle);
         processButton = findViewById(R.id.process_btn);
-        whiteBalancingRadioGroup = findViewById(R.id.radio_group_white_balancing);
         toneRadioGroup = findViewById(R.id.radio_group_tone);
         brightnessSeek = findViewById(R.id.brightness_seekbar);
         gammaSeek = findViewById(R.id.gamma_seekbar);
@@ -104,12 +107,25 @@ public class EditActivity extends AppCompatActivity {
         tonemapSpinner = findViewById(R.id.tonemap_spinner);
         wbSpinner = findViewById(R.id.wb_spinner);
         wbctSpinner = findViewById(R.id.wbct_spinner);
+        wbOptionSpinner = findViewById(R.id.wb_option_spinner);
         saveView = findViewById(R.id.saveView);
         saveLayout = findViewById(R.id.saveLayout);
+        wbSeekGroup = findViewById(R.id.wb_seek_group);
+
+        seekR = findViewById(R.id.seek_r);
+        seekB = findViewById(R.id.seek_b);
 
         // Populate tonemap Spinner
         ArrayAdapter<CharSequence> tonemap_adapter = ArrayAdapter.createFromResource(this, R.array.tonemap_array, android.R.layout.simple_spinner_dropdown_item);
         tonemapSpinner.setAdapter(tonemap_adapter);
+
+        // Populate wb options spinner
+        wbOptionsLabel.add("Camera Whitebalance");
+        wbOptionsLabel.add("Auto Whitebalance");
+        wbOptionsLabel.add("Custom Whitebalance");
+
+        ArrayAdapter<String> wbOptionsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbOptionsLabel);
+        wbOptionSpinner.setAdapter(wbOptionsAdapter);
 
         // Hide options
         whiteBalancingGroup.setVisibility(View.VISIBLE);
@@ -119,7 +135,9 @@ public class EditActivity extends AppCompatActivity {
         resetButton.setVisibility(View.INVISIBLE);
         saveView.setVisibility(View.GONE);
         saveLayout.setVisibility(View.GONE);
-
+        wbSpinner.setVisibility(View.GONE);
+        wbctSpinner.setVisibility(View.GONE);
+        wbSeekGroup.setVisibility(View.GONE);
 
         // Get bitmap
         Bundle extras = getIntent().getExtras();
@@ -151,52 +169,19 @@ public class EditActivity extends AppCompatActivity {
                                     public void run() {
                                         progressCircle.setVisibility(View.GONE);
                                         imageView.setImageBitmap(bitmap);
+
+                                        wb_ind = libraw.getWBInd();
+                                        wbct_ind = libraw.getWBCTInd();
+                                        wbct_labels = libraw.getWBCTTemp();
+                                        fillWbSpinner();
                                     }
                                 });
                             }
-
-                            wb_ind = libraw.getWBInd();
-                            wbct_ind = libraw.getWBCTInd();
-                            wbct_labels = libraw.getWBCTTemp();
-                            wbInfoReceived = true;
                         }
                     }
                 }
             }.start();
 
-            // Wait for WB info from thread
-            while (!wbInfoReceived) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // Fill WB spinner
-            ArrayList<String> wbLabels = new ArrayList<String>();
-            if (wb_ind != null) {
-                for (int i = 1; i <= wb_ind.length; i++) {
-                    wbLabels.add("Option " + i);
-                }
-            } else {
-                wbctSpinner.setVisibility(View.GONE);
-            }
-            ArrayAdapter<String> wbSpinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbLabels);
-            wbSpinner.setAdapter(wbSpinnerArrayAdapter);
-
-            // Fill WBCT spinner
-            ArrayList<String> wbctLabels = new ArrayList<String>();
-            if (wbct_ind != null) {
-                for (int i = 0; i < wbct_ind.length; i++) {
-                    wbctLabels.add(String.valueOf(wbct_labels[i]) + " K");
-                }
-            }
-            else {
-                wbSpinner.setVisibility(View.GONE);
-            }
-            ArrayAdapter<String> wbctSpinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbctLabels);
-            wbctSpinner.setAdapter(wbctSpinnerArrayAdapter);
         }
 
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -210,7 +195,7 @@ public class EditActivity extends AppCompatActivity {
                 new Thread() {
                     @Override
                     public void run() {
-                        final Bitmap bitmap = libraw.decodeAsBitmap(true, true);
+                        final Bitmap bitmap = libraw.decodeAsBitmap(false, true);
                         if (bitmap != null) {
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -258,26 +243,58 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-        // Wire radio groups
-        whiteBalancingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        wbOptionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                // TODO: Check user mul values
-                if (findViewById(i) == findViewById(R.id.radio_no_white_balance)) {
-                    libraw.setUserMul(new float[]{1f, 1f, 1f, 1f});
-                    libraw.setCameraWb(false);
-                    libraw.setAutoWb(false);
-                } else if (findViewById(i) == findViewById(R.id.radio_camera_white_balance)) {
-                    libraw.setUserMul(new float[]{0f, 0f, 0f, 0f});
-                    libraw.setCameraWb(true);
-                    libraw.setAutoWb(false);
-                } else if (findViewById(i) == findViewById(R.id.radio_auto_white_balance)) {
-                    libraw.setUserMul(new float[]{0f, 0f, 0f, 0f});
-                    libraw.setCameraWb(false);
-                    libraw.setAutoWb(true);
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                switch(pos) {
+                    case 0:
+                        libraw.setUserMul(new float[]{0f, 0f, 0f, 0f});
+                        libraw.setCameraWb(true);
+                        libraw.setAutoWb(false);
+                        wbSpinner.setVisibility(View.GONE);
+                        wbctSpinner.setVisibility(View.GONE);
+                        wbSeekGroup.setVisibility(View.GONE);
+                        break;
+                    case 1:
+                        libraw.setUserMul(new float[]{0f, 0f, 0f, 0f});
+                        libraw.setCameraWb(false);
+                        libraw.setAutoWb(true);
+                        wbSpinner.setVisibility(View.GONE);
+                        wbctSpinner.setVisibility(View.GONE);
+                        wbSeekGroup.setVisibility(View.GONE);
+                        break;
+                    case 2:
+                        wbSpinner.setVisibility(View.GONE);
+                        wbctSpinner.setVisibility(View.GONE);
+                        libraw.setCameraWb(false);
+                        libraw.setAutoWb(false);
+                        wbSeekGroup.setVisibility(View.VISIBLE);
+                        break;
+                    case 3:
+                        libraw.setCameraWb(false);
+                        libraw.setAutoWb(false);
+                        wbSpinner.setVisibility(View.VISIBLE);
+                        wbctSpinner.setVisibility(View.GONE);
+                        wbSeekGroup.setVisibility(View.GONE);
+                        libraw.applyWBUserMul(wb_ind[wbSpinner.getSelectedItemPosition()]);
+                        break;
+                    case 4:
+                        libraw.setCameraWb(false);
+                        libraw.setAutoWb(false);
+                        wbSpinner.setVisibility(View.GONE);
+                        wbctSpinner.setVisibility(View.VISIBLE);
+                        wbSeekGroup.setVisibility(View.GONE);
+                        libraw.applyWBUserMul(wbct_ind[wbctSpinner.getSelectedItemPosition()]);
+                        break;
                 }
             }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Another interface callback
+            }
         });
+
         toneRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -439,6 +456,50 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+        seekR.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                float seekValR = seekBar.getProgress();
+                float valR = 5 * seekValR/100;
+                float seekValB = seekB.getProgress();
+                float valB = 5 * seekValB/100;
+                float[] userMul = {valR, 1.0f, valB, 1.0f};
+                libraw.setUserMul(userMul);
+            }
+        });
+
+        seekB.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                float seekValB = seekBar.getProgress();
+                float valB = 5 * seekValB/100;
+                float seekValR = seekR.getProgress();
+                float valR = 5 * seekValR/100;
+                float[] userMul = {valR, 1.0f, valB, 1.0f};
+                libraw.setUserMul(userMul);
+            }
+        });
+
         tonemapSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -455,7 +516,7 @@ public class EditActivity extends AppCompatActivity {
         wbSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                libraw.applyWBUserMul(pos);
+                libraw.applyWBUserMul(wb_ind[pos]);
             }
 
             @Override
@@ -467,7 +528,7 @@ public class EditActivity extends AppCompatActivity {
         wbctSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                libraw.applyWBCTUserMul(pos);
+                libraw.applyWBCTUserMul(wbct_ind[pos]);
             }
 
             @Override
@@ -518,10 +579,6 @@ public class EditActivity extends AppCompatActivity {
         }.start();
     }
 
-    public void fillWBSpinners() {
-
-    }
-
     public void saveImage(Bitmap bitmap) {
         OutputStream fos;
         Long tsLong = System.currentTimeMillis()/1000;
@@ -540,6 +597,38 @@ public class EditActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.d("error", e.toString());
         }
+    }
+
+    public void fillWbSpinner() {
+        // Fill WB spinner
+        ArrayList<String> wbLabels = new ArrayList<String>();
+        if (wb_ind != null) {
+            wbOptionsLabel.add("Presets");
+            for (int i = 1; i <= wb_ind.length; i++) {
+                wbLabels.add("Option " + i);
+            }
+        } else {
+            wbctSpinner.setVisibility(View.GONE);
+        }
+        ArrayAdapter<String> wbSpinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbLabels);
+        wbSpinner.setAdapter(wbSpinnerArrayAdapter);
+
+        // Fill WBCT spinner
+        ArrayList<String> wbctLabels = new ArrayList<String>();
+        if (wbct_ind != null) {
+            wbOptionsLabel.add("Temperature");
+            for (int i = 0; i < wbct_ind.length; i++) {
+                wbctLabels.add(String.valueOf(wbct_labels[i]) + " K");
+            }
+        }
+        else {
+            wbSpinner.setVisibility(View.GONE);
+        }
+        ArrayAdapter<String> wbctSpinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbctLabels);
+        wbctSpinner.setAdapter(wbctSpinnerArrayAdapter);
+
+        ArrayAdapter<String> wbOptionsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbOptionsLabel);
+        wbOptionSpinner.setAdapter(wbOptionsAdapter);
     }
 
 }

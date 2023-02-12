@@ -102,43 +102,61 @@
                     android:text="White Balancing"
                     android:textSize="18sp" />
 
-            <Spinner
-                android:id="@+id/wb_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"/>
+                <Spinner
+                    android:id="@+id/wb_option_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp" />
 
-            <Spinner
-                android:id="@+id/wbct_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"/>
+                <Spinner
+                    android:id="@+id/wb_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp" />
 
-            <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/radio_group_white_balancing"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checkedButton="@+id/radio_no_white_balance"
-                android:orientation="vertical">
+                <Spinner
+                    android:id="@+id/wbct_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp" />
 
-                    <RadioButton
-                        android:id="@+id/radio_no_white_balance"
-                        android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/wb_seek_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No White Balance" />
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="R" />
 
-                    <RadioButton
-                        android:id="@+id/radio_camera_white_balance"
-                        android:layout_width="wrap_content"
+                    <SeekBar
+                        android:id="@+id/seek_r"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Camera White Balance" />
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_weight="1" />
 
-                    <RadioButton
-                        android:id="@+id/radio_auto_white_balance"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Auto White Balance" />
-                </RadioGroup>
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="B" />
+
+                    <SeekBar
+                        android:id="@+id/seek_b"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_weight="1" />
+                </LinearLayout>
 
                 <Button
                     android:id="@+id/process_btn"
