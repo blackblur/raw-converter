@@ -30,6 +30,9 @@ import com.google.android.material.navigation.NavigationBarView;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -38,20 +41,21 @@ public class EditActivity extends AppCompatActivity {
     LibRaw libraw;
     ImageView imageView;
     Group whiteBalancingGroup, colorCorrectionGroup, tonemapGroup, extraGroup;
-    Button processButton,resetButton, resetGainButton;
+    Button processButton, resetButton, resetGainButton;
     ProgressBar progressCircle;
     RadioGroup whiteBalancingRadioGroup, toneRadioGroup;
     SeekBar brightnessSeek, gammaSeek;
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
-    SeekBar brightnessToneSeek, contrastToneSeek, tempSeekBar, tintSeekBar;
+    SeekBar brightnessToneSeek, contrastToneSeek;
     FloatingActionButton saveButton;
     Switch toneCurveSwitch;
-    Spinner tonemapSpinner;
+    Spinner tonemapSpinner, wbSpinner, wbctSpinner;
 
     int[] wbct_ind;
     float[] wbct_labels;
     int[] wb_ind;
+    boolean wbInfoReceived = false;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -84,11 +88,11 @@ public class EditActivity extends AppCompatActivity {
         resetGainButton = findViewById(R.id.reset_gain_btn);
         brightnessToneSeek = findViewById(R.id.brightness_tone_seekbar);
         contrastToneSeek = findViewById(R.id.contrast_tone_seekbar);
-        tempSeekBar = findViewById(R.id.temp_seekBar);
-        tintSeekBar = findViewById(R.id.tint_seekBar);
         saveButton = findViewById(R.id.floatingActionButton);
         toneCurveSwitch = findViewById(R.id.tone_curve_switch);
         tonemapSpinner = findViewById(R.id.tonemap_spinner);
+        wbSpinner = findViewById(R.id.wb_spinner);
+        wbctSpinner = findViewById(R.id.wbct_spinner);
 
         // Populate tonemap Spinner
         ArrayAdapter<CharSequence> tonemap_adapter = ArrayAdapter.createFromResource(this, R.array.tonemap_array, android.R.layout.simple_spinner_dropdown_item);
@@ -139,11 +143,36 @@ public class EditActivity extends AppCompatActivity {
                             wb_ind = libraw.getWBInd();
                             wbct_ind = libraw.getWBCTInd();
                             wbct_labels = libraw.getWBCTTemp();
-
+                            wbInfoReceived = true;
                         }
                     }
                 }
             }.start();
+
+            // Wait for WB info from thread
+            while (!wbInfoReceived) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Fill WB spinner
+            ArrayList<String> wbLabels = new ArrayList<String>();
+            for (int i = 1; i <= wb_ind.length; i++) {
+                wbLabels.add("Option " + i);
+            }
+            ArrayAdapter<String> wbSpinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbLabels);
+            wbSpinner.setAdapter(wbSpinnerArrayAdapter);
+
+            // Fill WBCT spinner
+            ArrayList<String> wbctLabels = new ArrayList<String>();
+            for (int i = 0; i < wbct_ind.length; i++) {
+                wbctLabels.add(String.valueOf(wbct_labels[i]) + " K");
+            }
+            ArrayAdapter<String> wbctSpinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbctLabels);
+            wbctSpinner.setAdapter(wbctSpinnerArrayAdapter);
         }
 
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -168,9 +197,7 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 toneCurveView.resetColorCurves(toneSelection);
-                libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y,
-                        toneCurveView.firstCPArr[toneSelection], toneCurveView.secondCPArr[toneSelection],
-                        toneCurveView.knotsList.get(toneSelection), toneSelection);
+                libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y, toneCurveView.firstCPArr[toneSelection], toneCurveView.secondCPArr[toneSelection], toneCurveView.knotsList.get(toneSelection), toneSelection);
                 processRaw(true);
 
             }
@@ -303,9 +330,7 @@ public class EditActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     // TODO: Check indices
-                    libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y,
-                            toneCurveView.firstCPArr[toneSelection], toneCurveView.secondCPArr[toneSelection],
-                            toneCurveView.knotsList.get(toneSelection), toneSelection);
+                    libraw.applyToneCurve(toneCurveView.maxBoundary_x, toneCurveView.maxBoundary_y, toneCurveView.firstCPArr[toneSelection], toneCurveView.secondCPArr[toneSelection], toneCurveView.knotsList.get(toneSelection), toneSelection);
                     processRaw(true);
                 }
                 return false;
@@ -362,53 +387,36 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-        tempSeekBar.setProgress(10);
-        tempSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-//                float seekVal = seekBar.getProgress();
-//                int a = libraw.getWBCTCoeff(1, 0);
-//                int b = libraw.getWBCTCoeff(1, 1);
-//                int c = libraw.getWBCTCoeff(1, 2);
-//                int d = libraw.getWBCTCoeff(1, 3);
-//                int e = libraw.getWBCTCoeff(1, 4);
-//                libraw.setUserMul(new float[]{1f / seekVal, 1f, 1f, 1f});
-//                processRaw(true);
-            }
-        });
-
-        tintSeekBar.setProgress(10);
-        tintSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
         tonemapSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 libraw.setToneMap(pos);
+                processRaw(true);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Another interface callback
+            }
+        });
+
+        wbSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                libraw.applyWBUserMul(pos);
+                processRaw(true);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Another interface callback
+            }
+        });
+
+        wbctSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                libraw.applyWBCTUserMul(pos);
                 processRaw(true);
             }
 
@@ -458,5 +466,9 @@ public class EditActivity extends AppCompatActivity {
                 }
             }
         }.start();
+    }
+
+    public void fillWBSpinners() {
+
     }
 }
