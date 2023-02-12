@@ -45,19 +45,13 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
-        android:id="@+id/process_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Process"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        app:layout_constraintTop_toBottomOf="@+id/process_btn">
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/white_balancing_group"
@@ -67,11 +61,18 @@
             app:constraint_referenced_ids="white_options" />
 
         <androidx.constraintlayout.widget.Group
-            android:id="@+id/tone_mapping_group"
+            android:id="@+id/color_correction_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="tone_options" />
+            app:constraint_referenced_ids="color_options" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/tonemap_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="tonemap_options" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/extra_group"
@@ -84,8 +85,17 @@
             android:id="@+id/white_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:text="White Balancing"
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/temp_text"
@@ -156,12 +166,21 @@
                     android:layout_height="wrap_content"
                     android:text="Auto White Balance" />
             </RadioGroup>
+
+            <Button
+                android:id="@+id/process_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Process" />
+
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/tone_options"
+            android:id="@+id/color_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -171,7 +190,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:text="Color Curve"
+                android:text="Color Correction"
                 android:textSize="18sp" />
 
             <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
@@ -217,47 +236,90 @@
                     android:textStyle="bold" />
             </RadioGroup>
 
+
+            <TextView
+                android:id="@+id/contrast_tone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"
+                android:text="Gain" />
+
+            <SeekBar
+                android:id="@+id/contrast_tone_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/brightness_tone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:text="Bias" />
+
+            <SeekBar
+                android:id="@+id/brightness_tone_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/reset_gain_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Reset Sliders" />
+
+            <Switch
+                android:id="@+id/tone_curve_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:switchMinWidth="50dp"
+                android:text="Tone Curve"
+                android:switchPadding = "10dp" />
+
             <Button
                 android:id="@+id/reset_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reset Curves" />
+                android:layout_marginTop="5dp"
+                android:text="Reset Curve" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tonemap_options"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/brightness_tonemap"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"
-                android:text="Brightness"
-
-                android:textSize="18sp" />
-
-            <SeekBar
-                android:id="@+id/brightness_tonemap_seekbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/contrast_tonemap"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"
-                android:text="Contrast"
-
+                android:text="Tone Mapping"
                 android:textSize="18sp" />
 
-            <SeekBar
-                android:id="@+id/contrast_tonemap_seekbar"
+            <TextView
+                android:id="@+id/test"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:text="Brightness" />
 
         </LinearLayout>
 
@@ -265,6 +327,7 @@
             android:id="@+id/extra_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent">
 

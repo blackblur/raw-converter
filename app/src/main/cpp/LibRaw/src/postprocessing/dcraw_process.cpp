@@ -314,7 +314,7 @@ int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[], int toneMap
             out[1] = toneCurves[1][tempimg[1]] * toneVals[1][1] + toneVals[1][0];
             out[2] = toneCurves[2][tempimg[2]] * toneVals[2][1] + toneVals[2][0];
 
-            if (toneMap == 3) {
+            if (toneMap == 1) {
                 // Extended Reinhard
                 l_old = 0.2126f * (out[0]/65535) + 0.7152f * (out[2]/65535) + 0.0722f * (out[2]/65535);
                 numerator = l_old * (1.0f + (l_old / (1.5 * 1.5)));
@@ -340,7 +340,7 @@ int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[], int toneMap
 
             }
 
-            if (toneMap == 1) {
+            if (toneMap == 3) {
               // Academy Color Encoding System ACES
               out[0] = out[0]/65535;
               out[1] = out[1]/65535;

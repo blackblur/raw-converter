@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.Group;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,26 +13,18 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.Toast;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationBarItemView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Logger;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -41,7 +32,7 @@ public class EditActivity extends AppCompatActivity {
 
     LibRaw libraw;
     ImageView imageView;
-    Group whiteBalancingGroup, toneMappingGroup, extraGroup;
+    Group whiteBalancingGroup, colorCorrectionGroup, tonemapGroup, extraGroup;
     Button processButton;
     ProgressBar progressCircle;
     RadioGroup whiteBalancingRadioGroup, toneRadioGroup;
@@ -49,7 +40,7 @@ public class EditActivity extends AppCompatActivity {
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
     Button resetButton;
-    SeekBar brightnessTonemapSeek, contrastTonemapSeek, tempSeekBar, tintSeekBar;
+    SeekBar brightnessToneSeek, contrastToneSeek, tempSeekBar, tintSeekBar;
     FloatingActionButton saveButton;
 
     int[] wbct_ind;
@@ -73,7 +64,8 @@ public class EditActivity extends AppCompatActivity {
         // Get view elements
         imageView = findViewById(R.id.imageView);
         whiteBalancingGroup = findViewById(R.id.white_balancing_group);
-        toneMappingGroup = findViewById(R.id.tone_mapping_group);
+        colorCorrectionGroup = findViewById(R.id.color_correction_group);
+        tonemapGroup = findViewById(R.id.tonemap_group);
         extraGroup = findViewById(R.id.extra_group);
         progressCircle = findViewById(R.id.img_loading_circle);
         processButton = findViewById(R.id.process_btn);
@@ -85,15 +77,16 @@ public class EditActivity extends AppCompatActivity {
         toneCurveView.setVisibility(View.INVISIBLE);
         bottomNavigation = findViewById(R.id.bottom_navigation);
         resetButton = findViewById(R.id.reset_btn);
-        brightnessTonemapSeek = findViewById(R.id.brightness_tonemap_seekbar);
-        contrastTonemapSeek = findViewById(R.id.contrast_tonemap_seekbar);
+        brightnessToneSeek = findViewById(R.id.brightness_tone_seekbar);
+        contrastToneSeek = findViewById(R.id.contrast_tone_seekbar);
         tempSeekBar = findViewById(R.id.temp_seekBar);
         tintSeekBar = findViewById(R.id.tint_seekBar);
         saveButton = findViewById(R.id.floatingActionButton);
 
         // Hide options
         whiteBalancingGroup.setVisibility(View.VISIBLE);
-        toneMappingGroup.setVisibility(View.GONE);
+        colorCorrectionGroup.setVisibility(View.GONE);
+        tonemapGroup.setVisibility(View.GONE);
         extraGroup.setVisibility(View.GONE);
 
 
@@ -214,19 +207,29 @@ public class EditActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.menu_white_balancing) {
                     whiteBalancingGroup.setVisibility(View.VISIBLE);
-                    toneMappingGroup.setVisibility(View.GONE);
+                    colorCorrectionGroup.setVisibility(View.GONE);
+                    tonemapGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.GONE);
                     toneCurveView.setVisibility(View.INVISIBLE);
                     return true;
-                } else if (item.getItemId() == R.id.menu_tone_mapping) {
+                } else if (item.getItemId() == R.id.menu_color_correction) {
                     whiteBalancingGroup.setVisibility(View.GONE);
-                    toneMappingGroup.setVisibility(View.VISIBLE);
+                    colorCorrectionGroup.setVisibility(View.VISIBLE);
+                    tonemapGroup.setVisibility(View.GONE);
+                    extraGroup.setVisibility(View.GONE);
+                    toneCurveView.setVisibility(View.VISIBLE);
+                    return true;
+                } else if (item.getItemId() == R.id.menu_tonemap) {
+                    whiteBalancingGroup.setVisibility(View.GONE);
+                    colorCorrectionGroup.setVisibility(View.GONE);
+                    tonemapGroup.setVisibility(View.VISIBLE);
                     extraGroup.setVisibility(View.GONE);
                     toneCurveView.setVisibility(View.VISIBLE);
                     return true;
                 } else if (item.getItemId() == R.id.menu_extra) {
                     whiteBalancingGroup.setVisibility(View.GONE);
-                    toneMappingGroup.setVisibility(View.GONE);
+                    colorCorrectionGroup.setVisibility(View.GONE);
+                    tonemapGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.VISIBLE);
                     toneCurveView.setVisibility(View.INVISIBLE);
                     return true;
@@ -290,8 +293,8 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-        brightnessTonemapSeek.setProgress(50);
-        brightnessTonemapSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        brightnessToneSeek.setProgress(50);
+        brightnessToneSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
             }
@@ -309,8 +312,8 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-        contrastTonemapSeek.setProgress(10);
-        contrastTonemapSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        contrastToneSeek.setProgress(10);
+        contrastToneSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
             }

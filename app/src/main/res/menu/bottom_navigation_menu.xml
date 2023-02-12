@@ -6,7 +6,12 @@
         android:icon="@drawable/ic_white_balancing"
         android:title="White Balancing"/>
     <item
-        android:id="@+id/menu_tone_mapping"
+        android:id="@+id/menu_color_correction"
+        android:enabled="true"
+        android:icon="@drawable/ic_tone_mapping"
+        android:title="Color Correction"/>
+    <item
+        android:id="@+id/menu_tonemap"
         android:enabled="true"
         android:icon="@drawable/ic_tone_mapping"
         android:title="Tone Mapping"/>
