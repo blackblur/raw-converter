@@ -270,7 +270,7 @@ Java_com_example_rawconverter_LibRaw_applyWBUserMul(JNIEnv *env, jobject jLibRaw
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_applyWBCTUserMul(JNIEnv *env, jobject jLibRaw, jint index) {
     for (int i = 0; i < 4; i++) {
-        libRawData->params.user_mul[i] = (float) libRawData->color.WBCT_Coeffs[index][i+1];
+        libRawData->params.user_mul[i] = (float) libRawData->color.WBCT_Coeffs[index][i + 1];
     }
 }
 
@@ -327,7 +327,7 @@ Java_com_example_rawconverter_LibRaw_openBuffer(JNIEnv *env, jobject obj, jbyteA
         // Get number of entries in WB and WBCT to create array
         int j = 0;
         for (int i = 0; i < 256; i++) {
-            if(libRawData->color.WB_Coeffs[i][0] > 0) {
+            if (libRawData->color.WB_Coeffs[i][0] > 0) {
                 wb_coeffs_ind[j] = i;
                 j++;
             }
@@ -336,7 +336,7 @@ Java_com_example_rawconverter_LibRaw_openBuffer(JNIEnv *env, jobject obj, jbyteA
 
         j = 0;
         for (int i = 0; i < 64; i++) {
-            if(libRawData->color.WBCT_Coeffs[i][0] > 0) {
+            if (libRawData->color.WBCT_Coeffs[i][0] > 0) {
                 wbct_coeffs_ind[j] = i;
                 j++;
             }
@@ -437,6 +437,30 @@ Java_com_example_rawconverter_LibRaw_getPixels8OnlyMem(JNIEnv *env, jobject obj)
     __android_log_print(ANDROID_LOG_INFO, "libraw", "error getPixels8 %d", error);
     return nullptr;
 }
+
+//extern "C" JNIEXPORT jlong JNICALL
+//Java_com_rawconverter_Libraw_getPixels16(JNIEnv *env, jobject obj) {
+//    int error;
+//    image = decode(&error);
+//    __android_log_print(ANDROID_LOG_INFO, "libraw", "decode result %d data_size %d", error,
+//                        image->data_size);
+//
+//    if (image != nullptr && image->data_size) {
+//        __android_log_print(ANDROID_LOG_INFO, "libraw", "image length %d", image->data_size);
+//
+//        char *image16 = NULL;
+//        image16 = malloc(image->data_size);
+//        if (image16 == NULL) {
+//            __android_log_print(ANDROID_LOG_INFO, "libraw", "getPixels16 oom");
+//            return 0;
+//        }
+//        __android_log_print(ANDROID_LOG_INFO, "libraw", "allocated memory");
+//        memcpy(image16, image->data, image->data_size);
+//        __android_log_print(ANDROID_LOG_INFO, "libraw", "copied pointer");
+//        return (jlong) image16;
+//    }
+//    return 0;
+//}
 
 
 /**

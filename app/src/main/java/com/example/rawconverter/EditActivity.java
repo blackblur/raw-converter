@@ -175,16 +175,25 @@ public class EditActivity extends AppCompatActivity {
 
             // Fill WB spinner
             ArrayList<String> wbLabels = new ArrayList<String>();
-            for (int i = 1; i <= wb_ind.length; i++) {
-                wbLabels.add("Option " + i);
+            if (wb_ind != null) {
+                for (int i = 1; i <= wb_ind.length; i++) {
+                    wbLabels.add("Option " + i);
+                }
+            } else {
+                wbctSpinner.setVisibility(View.GONE);
             }
             ArrayAdapter<String> wbSpinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbLabels);
             wbSpinner.setAdapter(wbSpinnerArrayAdapter);
 
             // Fill WBCT spinner
             ArrayList<String> wbctLabels = new ArrayList<String>();
-            for (int i = 0; i < wbct_ind.length; i++) {
-                wbctLabels.add(String.valueOf(wbct_labels[i]) + " K");
+            if (wbct_ind != null) {
+                for (int i = 0; i < wbct_ind.length; i++) {
+                    wbctLabels.add(String.valueOf(wbct_labels[i]) + " K");
+                }
+            }
+            else {
+                wbSpinner.setVisibility(View.GONE);
             }
             ArrayAdapter<String> wbctSpinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbctLabels);
             wbctSpinner.setAdapter(wbctSpinnerArrayAdapter);
@@ -447,7 +456,6 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 libraw.applyWBUserMul(pos);
-                processRaw(true);
             }
 
             @Override
@@ -460,7 +468,6 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 libraw.applyWBCTUserMul(pos);
-                processRaw(true);
             }
 
             @Override
