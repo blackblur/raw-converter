@@ -195,7 +195,7 @@ public class EditActivity extends AppCompatActivity {
                 new Thread() {
                     @Override
                     public void run() {
-                        final Bitmap bitmap = libraw.decodeAsBitmap(false, true);
+                        final Bitmap bitmap = libraw.decodeAsBitmap(false, false);
                         if (bitmap != null) {
                             runOnUiThread(new Runnable() {
                                 @Override
