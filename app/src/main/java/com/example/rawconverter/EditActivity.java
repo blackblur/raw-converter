@@ -13,10 +13,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -42,6 +44,7 @@ public class EditActivity extends AppCompatActivity {
     Button resetButton;
     SeekBar brightnessToneSeek, contrastToneSeek, tempSeekBar, tintSeekBar;
     FloatingActionButton saveButton;
+    Switch toneCurveSwitch;
 
     int[] wbct_ind;
     float[] wbct_labels;
@@ -82,12 +85,14 @@ public class EditActivity extends AppCompatActivity {
         tempSeekBar = findViewById(R.id.temp_seekBar);
         tintSeekBar = findViewById(R.id.tint_seekBar);
         saveButton = findViewById(R.id.floatingActionButton);
+        toneCurveSwitch = findViewById(R.id.tone_curve_switch);
 
         // Hide options
         whiteBalancingGroup.setVisibility(View.VISIBLE);
         colorCorrectionGroup.setVisibility(View.GONE);
         tonemapGroup.setVisibility(View.GONE);
         extraGroup.setVisibility(View.GONE);
+        resetButton.setVisibility(View.INVISIBLE);
 
 
         // Get bitmap
@@ -210,28 +215,24 @@ public class EditActivity extends AppCompatActivity {
                     colorCorrectionGroup.setVisibility(View.GONE);
                     tonemapGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.GONE);
-                    toneCurveView.setVisibility(View.INVISIBLE);
                     return true;
                 } else if (item.getItemId() == R.id.menu_color_correction) {
                     whiteBalancingGroup.setVisibility(View.GONE);
                     colorCorrectionGroup.setVisibility(View.VISIBLE);
                     tonemapGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.GONE);
-                    toneCurveView.setVisibility(View.VISIBLE);
                     return true;
                 } else if (item.getItemId() == R.id.menu_tonemap) {
                     whiteBalancingGroup.setVisibility(View.GONE);
                     colorCorrectionGroup.setVisibility(View.GONE);
                     tonemapGroup.setVisibility(View.VISIBLE);
                     extraGroup.setVisibility(View.GONE);
-                    toneCurveView.setVisibility(View.VISIBLE);
                     return true;
                 } else if (item.getItemId() == R.id.menu_extra) {
                     whiteBalancingGroup.setVisibility(View.GONE);
                     colorCorrectionGroup.setVisibility(View.GONE);
                     tonemapGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.VISIBLE);
-                    toneCurveView.setVisibility(View.INVISIBLE);
                     return true;
                 }
                 return false;
@@ -290,6 +291,18 @@ public class EditActivity extends AppCompatActivity {
                     processRaw(true);
                 }
                 return false;
+            }
+        });
+
+        toneCurveSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    toneCurveView.setVisibility(View.VISIBLE);
+                    resetButton.setVisibility(View.VISIBLE);
+                } else {
+                    toneCurveView.setVisibility(View.INVISIBLE);
+                    resetButton.setVisibility(View.INVISIBLE);
+                }
             }
         });
 
