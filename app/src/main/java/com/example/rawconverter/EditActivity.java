@@ -2,16 +2,22 @@ package com.example.rawconverter;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Group;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -30,6 +36,8 @@ import com.google.android.material.navigation.NavigationBarView;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Objects;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -48,6 +56,9 @@ public class EditActivity extends AppCompatActivity {
     FloatingActionButton saveButton;
     Switch toneCurveSwitch;
     Spinner tonemapSpinner;
+
+    View saveView;
+    ConstraintLayout saveLayout;
 
     int[] wbct_ind;
     float[] wbct_labels;
@@ -89,6 +100,8 @@ public class EditActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.floatingActionButton);
         toneCurveSwitch = findViewById(R.id.tone_curve_switch);
         tonemapSpinner = findViewById(R.id.tonemap_spinner);
+        saveView = findViewById(R.id.saveView);
+        saveLayout = findViewById(R.id.saveLayout);
 
         // Populate tonemap Spinner
         ArrayAdapter<CharSequence> tonemap_adapter = ArrayAdapter.createFromResource(this, R.array.tonemap_array, android.R.layout.simple_spinner_dropdown_item);
@@ -100,6 +113,8 @@ public class EditActivity extends AppCompatActivity {
         tonemapGroup.setVisibility(View.GONE);
         extraGroup.setVisibility(View.GONE);
         resetButton.setVisibility(View.INVISIBLE);
+        saveView.setVisibility(View.GONE);
+        saveLayout.setVisibility(View.GONE);
 
 
         // Get bitmap
@@ -151,8 +166,27 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.i("DO SAVING", "SAVING");
 //                libraw.writeTxtFile(EditActivity.this.getFilesDir());
+                saveView.setVisibility(View.VISIBLE);
+                saveLayout.setVisibility(View.VISIBLE);
 
-//                processRaw(true);
+                new Thread() {
+                    @Override
+                    public void run() {
+                        final Bitmap bitmap = libraw.decodeAsBitmap(true, true);
+                        if (bitmap != null) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    saveImage(bitmap);
+                                    saveView.setVisibility(View.GONE);
+                                    saveLayout.setVisibility(View.GONE);
+                                    Toast.makeText(getApplicationContext(), "Image saved successfully", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                }.start();
+
             }
         });
 
@@ -233,24 +267,33 @@ public class EditActivity extends AppCompatActivity {
                     colorCorrectionGroup.setVisibility(View.GONE);
                     tonemapGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.GONE);
+                    toneCurveView.setVisibility(View.INVISIBLE);
                     return true;
                 } else if (item.getItemId() == R.id.menu_color_correction) {
                     whiteBalancingGroup.setVisibility(View.GONE);
                     colorCorrectionGroup.setVisibility(View.VISIBLE);
                     tonemapGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.GONE);
+                    if (toneCurveSwitch.isChecked()) {
+                        toneCurveView.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        toneCurveView.setVisibility(View.INVISIBLE);
+                    }
                     return true;
                 } else if (item.getItemId() == R.id.menu_tonemap) {
                     whiteBalancingGroup.setVisibility(View.GONE);
                     colorCorrectionGroup.setVisibility(View.GONE);
                     tonemapGroup.setVisibility(View.VISIBLE);
                     extraGroup.setVisibility(View.GONE);
+                    toneCurveView.setVisibility(View.INVISIBLE);
                     return true;
                 } else if (item.getItemId() == R.id.menu_extra) {
                     whiteBalancingGroup.setVisibility(View.GONE);
                     colorCorrectionGroup.setVisibility(View.GONE);
                     tonemapGroup.setVisibility(View.GONE);
                     extraGroup.setVisibility(View.VISIBLE);
+                    toneCurveView.setVisibility(View.INVISIBLE);
                     return true;
                 }
                 return false;
@@ -459,4 +502,25 @@ public class EditActivity extends AppCompatActivity {
             }
         }.start();
     }
+
+    public void saveImage(Bitmap bitmap) {
+        OutputStream fos;
+        Long tsLong = System.currentTimeMillis()/1000;
+        String ts = tsLong.toString();
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentResolver resolver = getContentResolver();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, ts + ".jpg");
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+                Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+                fos = resolver.openOutputStream(Objects.requireNonNull(imageUri));
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                Objects.requireNonNull(fos);
+            }
+        } catch (Exception e) {
+            Log.d("error", e.toString());
+        }
+    }
+
 }

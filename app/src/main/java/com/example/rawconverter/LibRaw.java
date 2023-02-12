@@ -63,7 +63,34 @@ public class LibRaw implements AutoCloseable {
             setHalfSize(halfSize);
 //            setOutputColor(2);
 
-            getInfo();
+//            getInfo();
+
+            int[] pixels;
+
+            if (onlyMem) {
+                pixels = getPixels8OnlyMem();
+            } else {
+                pixels = getPixels8();
+            }
+            if (pixels != null) {
+                b = Bitmap.createBitmap(pixels, getBitmapWidth(), getBitmapHeight(), Bitmap.Config.ARGB_8888);
+            }
+
+//            recycle();
+            return b;
+        }
+
+        return null;
+    }
+
+    public Bitmap decodeAsBitmap(boolean halfSize, boolean onlyMem, int bps, int userQual) {
+        Bitmap b = null;
+
+        if (isInstance) {
+            setOutputBps(bps);
+            setUserQual(userQual);
+            setHalfSize(halfSize);
+//            setOutputColor(2);
 
             int[] pixels;
 
