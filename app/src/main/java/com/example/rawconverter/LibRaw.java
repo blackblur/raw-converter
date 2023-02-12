@@ -179,6 +179,8 @@ public class LibRaw implements AutoCloseable {
 
     public native void applyWBCTUserMul(int index);
 
+    public native void setToneMap(boolean index);
+
     /**
      * Methods Loading Data from a File
      */

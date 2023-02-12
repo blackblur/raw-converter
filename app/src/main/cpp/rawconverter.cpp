@@ -52,6 +52,8 @@ int wbct_coeffs_ind[64] = {-1};
 int wb_ind_n = 0;
 int wbct_ind_n = 0;
 
+int toneMappingInd = 0;
+
 void cleanup() {
     if (libRawData != nullptr) {
         libraw_recycle(libRawData);
@@ -65,12 +67,12 @@ void cleanup() {
 
 libraw_processed_image_t *decode(int *error) {
     int dcraw = libraw_dcraw_process(libRawData);
-    dcraw = libraw_dcraw_process_2(libRawData, toneCurves, toneVals);
+    dcraw = libraw_dcraw_process_2(libRawData, toneCurves, toneVals, toneMappingInd);
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
 libraw_processed_image_t *decodeOnlyMem(int *error) {
-    int dcraw = libraw_dcraw_process_2(libRawData, toneCurves, toneVals);
+    int dcraw = libraw_dcraw_process_2(libRawData, toneCurves, toneVals, toneMappingInd);
     return libraw_dcraw_make_mem_image(libRawData, error);
 }
 
@@ -270,6 +272,11 @@ Java_com_example_rawconverter_LibRaw_applyWBCTUserMul(JNIEnv *env, jobject jLibR
     for (int i = 0; i < 4; i++) {
         libRawData->params.user_mul[i] = (float) libRawData->color.WBCT_Coeffs[index][i+1];
     }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_rawconverter_LibRaw_setToneMap(JNIEnv *env, jobject jLibRaw, jboolean index) {
+    toneMappingInd = (int) index;
 }
 
 /**

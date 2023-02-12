@@ -268,7 +268,7 @@ int LibRaw::dcraw_process(void)
   }
 }
 
-int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[]) {
+int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[], int toneMap) {
   try
   {
 
@@ -283,14 +283,99 @@ int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[]) {
       int row, col;
       ushort *img;
       ushort *tempimg;
+      float out[3];
+      float out_old[3];
+      float out_a[3];
+      float out_b[3];
+      float l_old = 0;
+      float numerator = 0;
+      float l_new = 0;
+
+      float As = 0.15f;
+      float Bs = 0.50f;
+      float Cs = 0.10f;
+      float Ds = 0.20f;
+      float Es = 0.02f;
+      float Fs = 0.30f;
+      float exposure_bias = 2.0f;
+      float w = ((11.2f*(As*11.2f+Cs*Bs)+Ds*Es)/(11.2f*(As*11.2f+Bs)+Ds*Fs))-Es/Fs;
+
+    float ac = 2.51f;
+    float bc = 0.03f;
+    float cc = 2.43f;
+    float dc = 0.59f;
+    float ec = 0.14f;
 
       for (img = imgdata.image[0], tempimg = imgdata.temp_image[0], row = 0;
            row < S.height; row++) {
         for (col = 0; col < S.width; col++, img += 4, tempimg += 4) {
 
-          img[0] = CLIP((int) (toneCurves[0][tempimg[0]] * toneVals[0][1] + toneVals[0][0]));
-          img[1] = CLIP((int) (toneCurves[1][tempimg[1]] * toneVals[1][1] + toneVals[1][0]));
-          img[2] = CLIP((int) (toneCurves[2][tempimg[2]] * toneVals[2][1] + toneVals[2][0]));
+            out[0] = toneCurves[0][tempimg[0]] * toneVals[0][1] + toneVals[0][0];
+            out[1] = toneCurves[1][tempimg[1]] * toneVals[1][1] + toneVals[1][0];
+            out[2] = toneCurves[2][tempimg[2]] * toneVals[2][1] + toneVals[2][0];
+
+            if (toneMap == 3) {
+                // Extended Reinhard
+                l_old = 0.2126f * (out[0]/65535) + 0.7152f * (out[2]/65535) + 0.0722f * (out[2]/65535);
+                numerator = l_old * (1.0f + (l_old / (1.5 * 1.5)));
+                l_new = numerator / (1.0f + l_old);
+                out[0] = out[0] * (l_new / l_old);
+                out[1] = out[1] * (l_new / l_old);
+                out[2] = out[2] * (l_new / l_old);
+            }
+
+            if (toneMap == 2) {
+              // Uncharted2 filmic
+              out[0] = out[0]/65535 * exposure_bias;
+              out[1] = out[1]/65535 * exposure_bias;
+              out[2] = out[2]/65535 * exposure_bias;
+
+              out[0] = ((out[0]*(As*out[0]+Cs*Bs)+Ds*Es)/(out[0]*(As*out[0]+Bs)+Ds*Fs))-Es/Fs;
+              out[1] = ((out[1]*(As*out[1]+Cs*Bs)+Ds*Es)/(out[1]*(As*out[1]+Bs)+Ds*Fs))-Es/Fs;
+              out[2] = ((out[2]*(As*out[2]+Cs*Bs)+Ds*Es)/(out[2]*(As*out[2]+Bs)+Ds*Fs))-Es/Fs;
+
+              out[0] = out[0] * 65535.0f / w;
+              out[1] = out[1] * 65535.0f / w;
+              out[2] = out[2] * 65535.0f / w;
+
+            }
+
+            if (toneMap == 1) {
+              // Academy Color Encoding System ACES
+              out[0] = out[0]/65535;
+              out[1] = out[1]/65535;
+              out[2] = out[2]/65535;
+
+              out_old[0] = 0.59719f * out[0] + 0.35458f * out[1] + 0.04823f * out[2];
+              out_old[1] = 0.07600f * out[0] + 0.90834f * out[1] + 0.01566f * out[2];
+              out_old[2] = 0.02840f * out[0] + 0.13383f * out[1] + 0.83777f * out[2];
+
+              out_a[0] = out_old[0] * (out_old[0] + 0.0245786f) - 0.000090537f;
+              out_a[1] = out_old[1] * (out_old[1] + 0.0245786f) - 0.000090537f;
+              out_a[2] = out_old[2] * (out_old[2] + 0.0245786f) - 0.000090537f;
+
+              out_b[0] = out_old[0] * (0.983729 * out_old[0] + 0.4329510) + 0.238081;
+              out_b[1] = out_old[1] * (0.983729 * out_old[1] + 0.4329510) + 0.238081;
+              out_b[2] = out_old[1] * (0.983729 * out_old[1] + 0.4329510) + 0.238081;
+
+              out_old[0] = out_a[0] / out_b[0];
+              out_old[1] = out_a[1] / out_b[1];
+              out_old[2] = out_a[2] / out_b[2];
+
+              out[0] = (1.60475f * out_old[0] - 0.53108f * out_old[1] - 0.07367f * out_old[2]) * 65535;
+              out[1] = (-0.10208f * out_old[0] + 1.10813f * out_old[1] - 0.00605f * out_old[2]) * 65535;
+              out[2] = (-0.00327f * out_old[0] - 0.07276f * out_old[1] + 1.07602f * out_old[2]) * 65535;
+
+//                out[0] = ((out[0]*(ac*out[0]+bc))/(out[0]*(cc*out[0]+dc)+ec)) * 65535;
+//                out[1] = ((out[1]*(ac*out[1]+bc))/(out[1]*(cc*out[1]+dc)+ec)) * 65535;
+//                out[2] = ((out[2]*(ac*out[2]+bc))/(out[2]*(cc*out[2]+dc)+ec)) * 65535;
+
+            }
+
+
+          img[0] = CLIP((int) out[0]);
+          img[1] = CLIP((int) out[1]);
+          img[2] = CLIP((int) out[2]);
 
         }
       }

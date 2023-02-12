@@ -56,6 +56,8 @@ public class EditActivity extends AppCompatActivity {
     float[] wbct_labels;
     int[] wb_ind;
 
+    boolean toneMapIndex = false;
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,11 +146,9 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.i("DO SAVING", "SAVING");
 //                libraw.writeTxtFile(EditActivity.this.getFilesDir());
-                if (wbct_labels != null) {
-                    for (int i = 0; i < wbct_labels.length; i++) {
-                        Log.i("WB COEFF", String.valueOf(wbct_labels[i]));
-                    }
-                }
+                toneMapIndex = !toneMapIndex;
+                libraw.setToneMap(toneMapIndex);
+                processRaw(true);
             }
         });
 
