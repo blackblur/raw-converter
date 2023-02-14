@@ -297,7 +297,6 @@ int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[], int toneMap
       float Ds = 0.20f;
       float Es = 0.02f;
       float Fs = 0.30f;
-      float exposure_bias = 2.0f;
       float w = ((11.2f*(As*11.2f+Cs*Bs)+Ds*Es)/(11.2f*(As*11.2f+Bs)+Ds*Fs))-Es/Fs;
 
       for (img = imgdata.image[0], tempimg = imgdata.temp_image[0], row = 0;
@@ -320,9 +319,9 @@ int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[], int toneMap
 
             if (toneMap == 2) {
               // Uncharted2 filmic
-              out[0] = out[0]/65535 * exposure_bias;
-              out[1] = out[1]/65535 * exposure_bias;
-              out[2] = out[2]/65535 * exposure_bias;
+              out[0] = out[0]/65535 * toneVals[3][0];
+              out[1] = out[1]/65535 * toneVals[3][0];
+              out[2] = out[2]/65535 * toneVals[3][0];
 
               out[0] = ((out[0]*(As*out[0]+Cs*Bs)+Ds*Es)/(out[0]*(As*out[0]+Bs)+Ds*Fs))-Es/Fs;
               out[1] = ((out[1]*(As*out[1]+Cs*Bs)+Ds*Es)/(out[1]*(As*out[1]+Bs)+Ds*Fs))-Es/Fs;
