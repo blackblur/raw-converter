@@ -250,7 +250,7 @@ public class EditActivity extends AppCompatActivity {
         wbOptionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                switch(pos) {
+                switch (pos) {
                     case 0:
                         libraw.setUserMul(new float[]{0f, 0f, 0f, 0f});
                         libraw.setCameraWb(true);
@@ -333,8 +333,7 @@ public class EditActivity extends AppCompatActivity {
                     extraGroup.setVisibility(View.GONE);
                     if (toneCurveSwitch.isChecked()) {
                         toneCurveView.setVisibility(View.VISIBLE);
-                    }
-                    else {
+                    } else {
                         toneCurveView.setVisibility(View.INVISIBLE);
                     }
                     return true;
@@ -474,9 +473,9 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 float seekValR = seekBar.getProgress();
-                float valR = 5 * seekValR/100;
+                float valR = 5 * seekValR / 100;
                 float seekValB = seekB.getProgress();
-                float valB = 5 * seekValB/100;
+                float valB = 5 * seekValB / 100;
                 float[] userMul = {valR, 1.0f, valB, 1.0f};
                 libraw.setUserMul(userMul);
             }
@@ -496,9 +495,9 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 float seekValB = seekBar.getProgress();
-                float valB = 5 * seekValB/100;
+                float valB = 5 * seekValB / 100;
                 float seekValR = seekR.getProgress();
-                float valR = 5 * seekValR/100;
+                float valR = 5 * seekValR / 100;
                 float[] userMul = {valR, 1.0f, valB, 1.0f};
                 libraw.setUserMul(userMul);
             }
@@ -509,13 +508,19 @@ public class EditActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 libraw.setToneMap(pos);
 
-                switch(pos) {
+                switch (pos) {
                     case 0:
                         reinhardGroup.setVisibility(View.GONE);
                         break;
                     case 1:
                         reinhardGroup.setVisibility(View.VISIBLE);
                         libraw.setToneMapParamsReinhard(reinhardSeek.getProgress() / 100f * 3);
+                        break;
+                    case 2:
+                        reinhardGroup.setVisibility(View.GONE);
+                        break;
+                    case 3:
+                        reinhardGroup.setVisibility(View.GONE);
                         break;
                 }
 
@@ -614,7 +619,7 @@ public class EditActivity extends AppCompatActivity {
 
     public void saveImage(Bitmap bitmap) {
         OutputStream fos;
-        Long tsLong = System.currentTimeMillis()/1000;
+        Long tsLong = System.currentTimeMillis() / 1000;
         String ts = tsLong.toString();
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -653,8 +658,7 @@ public class EditActivity extends AppCompatActivity {
             for (int i = 0; i < wbct_ind.length; i++) {
                 wbctLabels.add(String.valueOf(wbct_labels[i]) + " K");
             }
-        }
-        else {
+        } else {
             wbSpinner.setVisibility(View.GONE);
         }
         ArrayAdapter<String> wbctSpinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, wbctLabels);
