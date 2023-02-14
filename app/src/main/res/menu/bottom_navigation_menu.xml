@@ -9,7 +9,7 @@
         android:id="@+id/menu_color_correction"
         android:enabled="true"
         android:icon="@drawable/ic_color_correction"
-        android:title="Color Correction"/>
+        android:title="Color Editing"/>
     <item
         android:id="@+id/menu_tonemap"
         android:enabled="true"

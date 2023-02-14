@@ -57,11 +57,11 @@ public class EditActivity extends AppCompatActivity {
     SeekBar brightnessSeek, gammaSeek;
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
-    SeekBar brightnessToneSeek, contrastToneSeek, seekR, seekB, reinhardSeek;
+    SeekBar brightnessToneSeek, contrastToneSeek, seekR, seekB, reinhardSeek, unchartedSeek;
     FloatingActionButton saveButton;
     Switch toneCurveSwitch;
     Spinner tonemapSpinner, wbSpinner, wbctSpinner, wbOptionSpinner;
-    LinearLayout wbSeekGroup, reinhardGroup;
+    LinearLayout wbSeekGroup, reinhardGroup, unchartedGroup;
 
     View saveView;
     ConstraintLayout saveLayout;
@@ -118,6 +118,10 @@ public class EditActivity extends AppCompatActivity {
         reinhardSeek = findViewById(R.id.reinhard_seek);
         reinhardSeek.setProgress((int) (1.5 * 100 / 3));
         reinhardGroup = findViewById(R.id.reinhard_layout);
+
+        unchartedSeek = findViewById(R.id.uncharted_seek);
+        unchartedGroup = findViewById(R.id.uncharted_layout);
+        unchartedSeek.setProgress((int) (2.0 * 100 / 5));
 
         // Populate tonemap Spinner
         ArrayAdapter<CharSequence> tonemap_adapter = ArrayAdapter.createFromResource(this, R.array.tonemap_array, android.R.layout.simple_spinner_dropdown_item);
@@ -511,16 +515,21 @@ public class EditActivity extends AppCompatActivity {
                 switch (pos) {
                     case 0:
                         reinhardGroup.setVisibility(View.GONE);
+                        unchartedGroup.setVisibility(View.GONE);
                         break;
                     case 1:
                         reinhardGroup.setVisibility(View.VISIBLE);
+                        unchartedGroup.setVisibility(View.GONE);
                         libraw.setToneMapParamsReinhard(reinhardSeek.getProgress() / 100f * 3);
                         break;
                     case 2:
                         reinhardGroup.setVisibility(View.GONE);
+                        unchartedGroup.setVisibility(View.VISIBLE);
+                        libraw.setToneMapParamsReinhard(unchartedSeek.getProgress() / 100f * 5);
                         break;
                     case 3:
                         reinhardGroup.setVisibility(View.GONE);
+                        unchartedGroup.setVisibility(View.GONE);
                         break;
                 }
 
@@ -547,6 +556,24 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 libraw.setToneMapParamsReinhard(reinhardSeek.getProgress() / 100f * 3);
+                processRaw(true);
+            }
+        });
+
+        unchartedSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                libraw.setToneMapParamsReinhard(unchartedSeek.getProgress() / 100f * 5);
                 processRaw(true);
             }
         });
