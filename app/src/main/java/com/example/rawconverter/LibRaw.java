@@ -208,6 +208,8 @@ public class LibRaw implements AutoCloseable {
 
     public native void setToneMap(int index);
 
+    public native void setToneMapParamsReinhard(float whitepoint);
+
     /**
      * Methods Loading Data from a File
      */

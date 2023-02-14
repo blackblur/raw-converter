@@ -57,11 +57,11 @@ public class EditActivity extends AppCompatActivity {
     SeekBar brightnessSeek, gammaSeek;
     ToneCurveView toneCurveView;
     NavigationBarView bottomNavigation;
-    SeekBar brightnessToneSeek, contrastToneSeek, seekR, seekB;
+    SeekBar brightnessToneSeek, contrastToneSeek, seekR, seekB, reinhardSeek;
     FloatingActionButton saveButton;
     Switch toneCurveSwitch;
     Spinner tonemapSpinner, wbSpinner, wbctSpinner, wbOptionSpinner;
-    LinearLayout wbSeekGroup;
+    LinearLayout wbSeekGroup, reinhardGroup;
 
     View saveView;
     ConstraintLayout saveLayout;
@@ -114,6 +114,10 @@ public class EditActivity extends AppCompatActivity {
 
         seekR = findViewById(R.id.seek_r);
         seekB = findViewById(R.id.seek_b);
+
+        reinhardSeek = findViewById(R.id.reinhard_seek);
+        reinhardSeek.setProgress((int) (1.5 * 100 / 3));
+        reinhardGroup = findViewById(R.id.reinhard_layout);
 
         // Populate tonemap Spinner
         ArrayAdapter<CharSequence> tonemap_adapter = ArrayAdapter.createFromResource(this, R.array.tonemap_array, android.R.layout.simple_spinner_dropdown_item);
@@ -504,12 +508,41 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 libraw.setToneMap(pos);
+
+                switch(pos) {
+                    case 0:
+                        reinhardGroup.setVisibility(View.GONE);
+                        break;
+                    case 1:
+                        reinhardGroup.setVisibility(View.VISIBLE);
+                        libraw.setToneMapParamsReinhard(reinhardSeek.getProgress() / 100f * 3);
+                        break;
+                }
+
                 processRaw(true);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 // Another interface callback
+            }
+        });
+
+        reinhardSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                libraw.setToneMapParamsReinhard(reinhardSeek.getProgress() / 100f * 3);
+                processRaw(true);
             }
         });
 

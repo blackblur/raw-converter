@@ -300,12 +300,6 @@ int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[], int toneMap
       float exposure_bias = 2.0f;
       float w = ((11.2f*(As*11.2f+Cs*Bs)+Ds*Es)/(11.2f*(As*11.2f+Bs)+Ds*Fs))-Es/Fs;
 
-    float ac = 2.51f;
-    float bc = 0.03f;
-    float cc = 2.43f;
-    float dc = 0.59f;
-    float ec = 0.14f;
-
       for (img = imgdata.image[0], tempimg = imgdata.temp_image[0], row = 0;
            row < S.height; row++) {
         for (col = 0; col < S.width; col++, img += 4, tempimg += 4) {
@@ -317,7 +311,7 @@ int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[], int toneMap
             if (toneMap == 1) {
                 // Extended Reinhard
                 l_old = 0.2126f * (out[0]/65535) + 0.7152f * (out[2]/65535) + 0.0722f * (out[2]/65535);
-                numerator = l_old * (1.0f + (l_old / (1.5 * 1.5)));
+                numerator = l_old * (1.0f + (l_old / (toneVals[3][0] * toneVals[3][0])));
                 l_new = numerator / (1.0f + l_old);
                 out[0] = out[0] * (l_new / l_old);
                 out[1] = out[1] * (l_new / l_old);
@@ -365,10 +359,6 @@ int LibRaw::dcraw_process_2(ushort *toneCurves[], float *toneVals[], int toneMap
               out[0] = (1.60475f * out_old[0] - 0.53108f * out_old[1] - 0.07367f * out_old[2]) * 65535;
               out[1] = (-0.10208f * out_old[0] + 1.10813f * out_old[1] - 0.00605f * out_old[2]) * 65535;
               out[2] = (-0.00327f * out_old[0] - 0.07276f * out_old[1] + 1.07602f * out_old[2]) * 65535;
-
-//                out[0] = ((out[0]*(ac*out[0]+bc))/(out[0]*(cc*out[0]+dc)+ec)) * 65535;
-//                out[1] = ((out[1]*(ac*out[1]+bc))/(out[1]*(cc*out[1]+dc)+ec)) * 65535;
-//                out[2] = ((out[2]*(ac*out[2]+bc))/(out[2]*(cc*out[2]+dc)+ec)) * 65535;
 
             }
 

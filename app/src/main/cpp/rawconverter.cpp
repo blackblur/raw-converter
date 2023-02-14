@@ -45,7 +45,8 @@ ushort *toneCurves[3] = {toneCurveR, toneCurveG, toneCurveB};
 float toneValR[2];
 float toneValG[2];
 float toneValB[2];
-float *toneVals[3] = {toneValR, toneValG, toneValB};
+float toneMapParams[1];
+float *toneVals[4] = {toneValR, toneValG, toneValB, toneMapParams};
 
 int wb_coeffs_ind[256] = {-1};
 int wbct_coeffs_ind[64] = {-1};
@@ -279,15 +280,20 @@ Java_com_example_rawconverter_LibRaw_setToneMap(JNIEnv *env, jobject jLibRaw, ji
     toneMappingInd = index;
 }
 
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_rawconverter_LibRaw_setToneMapParamsReinhard(JNIEnv *env, jobject jLibRaw, jfloat whitepoint) {
+    toneVals[3][0] = whitepoint;
+}
+
 /**
  * Methods Loading Data from a File
  */
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_rawconverter_LibRaw_init(JNIEnv *env, jobject jLibRaw, int flags) {
     cleanup();
-    for (auto &toneVal: toneVals) {
-        toneVal[0] = 0.f;
-        toneVal[1] = 1.f;
+    for (int i = 0; i < 3; i++) {
+        toneVals[i][0] = 0.f;
+        toneVals[i][1] = 1.f;
     }
     libRawData = libraw_init(flags);
 }
