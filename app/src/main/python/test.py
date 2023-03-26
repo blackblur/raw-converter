@@ -36,11 +36,11 @@ def open_raw(content):
     content_file = io.BytesIO(content)
 
     result = True
-
+    t = time.time()
     try:
         with rawpy.imread(content_file) as raw:
             rgb = raw.postprocess()
     except:
         result = False
 
-    return result
+    return time.time() - t
