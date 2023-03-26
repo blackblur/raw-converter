@@ -22,7 +22,7 @@ android {
 
         python {
             version "3.8"
-            buildPython "F:\\workspaces\\raw-converter\\venv\\Scripts\\python.exe"  // Change that
+            buildPython "F:\\workspaces\\playground\\venv\\Scripts\\python.exe"  // Change that
 
             pip {
                 install "rawpy"

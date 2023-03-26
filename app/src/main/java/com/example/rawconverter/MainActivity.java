@@ -67,9 +67,14 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (inputData != null) {
-                            byte[] res = pyobj.callAttr("open_raw", inputData).toJava(byte[].class);
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(res, 0, res.length);
-                            thumbnail.setImageBitmap(bitmap);
+//                            byte[] res = pyobj.callAttr("open_raw", inputData).toJava(byte[].class);
+//                            Log.i("YAAAAAAAAAY", String.valueOf(res.length));
+//                            Bitmap bitmap = BitmapFactory.decodeByteArray(res, 0, res.length);
+//                            thumbnail.setImageBitmap(bitmap);
+                            long start = System.currentTimeMillis();
+                            boolean res = pyobj.callAttr("open_raw", inputData).toJava(boolean.class);
+                            long finish = System.currentTimeMillis();
+                            Log.i("ELAPSED TIME", String.valueOf(finish - start));
                         }
                         else {
                             Log.i("PYTHON STATUS", "false");

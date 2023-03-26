@@ -39,8 +39,8 @@ def open_raw(content):
 
     try:
         with rawpy.imread(content_file) as raw:
-            rgb = raw.extract_thumb()
+            rgb = raw.postprocess()
     except:
         result = False
 
-    return BytesIO(rgb.data).getvalue()
+    return result
